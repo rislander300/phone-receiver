@@ -276,7 +276,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
     <div class="mstep"><div class="mnum">2</div><p>Laptop picks it up <strong>automatically within 5 seconds</strong>.</p></div>
     <div class="mstep"><div class="mnum">3</div><p>Status bar shows <strong>Saved to Drive</strong> when complete.</p></div>
     <div class="modal-btns">
-      <button class="btn-dl" onclick="doSave()">Save to Drive</button>
+      <button class="btn-dl" onclick="doSave()">Download JSON</button>
       <button class="btn-done" onclick="closeModal()">Done</button>
     </div>
   </div>
@@ -482,8 +482,17 @@ function doSave(){
     matchSummary:expected.length?m+'/'+expected.length+' matched':scanned.length+' scanned (no packing list)',
     rows:scanned.map(function(s){return{date:h.date,carrier:h.carrier,po:h.po,truck:h.truck,seal:h.seal,bol:h.bol,b200:(s.type==='B200'||s.type==='UNKNOWN')?s.sn:'',sc:s.type==='SideCar'?s.sn:'',itemType:s.type,matched:s.matched,nsim:false,id:Date.now()+Math.random()};})
   };
-  // Post to Apps Script — it saves directly to Drive folder
-  syncToDrive(session);
+  var fname=buildName()+'.json';
+  var blob=new Blob([JSON.stringify(session,null,2)],{type:'application/json'});
+  var file=new File([blob],fname,{type:'application/json'});
+  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+    navigator.share({files:[file],title:fname})
+    .then(function(){toast('Shared — save to Drive','g');syncToDrive(session);})
+    .catch(function(e){if(e.name!=='AbortError'){dlBlob(blob,fname);}});
+  }else{
+    dlBlob(blob,fname);
+    syncToDrive(session);
+  }
   dmgPhotos.forEach(function(p,i){setTimeout(function(){dlBlob(p.blob,buildName()+'_DMG_'+(i+1)+'.jpg');},( i+1)*700);});
 }
 
