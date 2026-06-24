@@ -287,6 +287,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 
 <script>
 var scanned=[],expected=[],dmgPhotos=[];
+var bolSlackUrl='',pkgSlackUrl='';
 var SCRIPT_URL='https://script.google.com/macros/s/AKfycbz_IlJh_Khwr6favwWwvxpC2WKTBPv3Y8ackbBoQPn5rrmUu8vTlWIb69wt_S5C_19cGw/exec';
 
 window.onload=function(){
@@ -345,6 +346,7 @@ function doBOL(){
     if(p.seal)document.getElementById('f-seal').value=p.seal;
     if(p.bol)document.getElementById('f-bol').value=p.bol;
     if(p.po)document.getElementById('f-po').value=p.po;
+    bolSlackUrl=p.slackUrl||'';
     document.getElementById('bol-inp').value='';
     document.getElementById('bol-badge').style.display='inline';
     showSt('bol-st','ok','BOL filled — verify above');
@@ -370,6 +372,7 @@ function doPKG(){
       renderScanned();updateProg();
       var m=scanned.filter(function(s){return s.matched;}).length;
       showSt('pkg-st','ok',m+'/'+expected.length+' matched'+(m<expected.length?' — '+(expected.length-m)+' not yet scanned':''));
+      pkgSlackUrl=p.slackUrl||'';
       document.getElementById('pkg-badge').style.display='inline';
       document.getElementById('pkg-inp').value='';
       toast('Packing list matched','g');
@@ -498,7 +501,7 @@ function doSave(){
     expected:expected,
     scanned:scanned,
     matchSummary:expected.length?m+'/'+expected.length+' matched':scanned.length+' scanned (no packing list)',
-    rows:scanned.map(function(s){return{date:h.date,carrier:h.carrier,po:h.po,truck:h.truck,seal:h.seal,bol:h.bol,b200:(s.type==='B200'||s.type==='UNKNOWN')?s.sn:'',sc:s.type==='SideCar'?s.sn:'',itemType:s.type,matched:s.matched,nsim:false,id:Date.now()+Math.random()};})
+    rows:scanned.map(function(s){return{date:h.date,carrier:h.carrier,po:h.po,truck:h.truck,seal:h.seal,bol:h.bol,b200:(s.type==='B200'||s.type==='UNKNOWN')?s.sn:'',sc:s.type==='SideCar'?s.sn:'',itemType:s.type,matched:s.matched,nsim:false,bolSlackUrl:bolSlackUrl,pkgSlackUrl:pkgSlackUrl,nsUrl:'',id:Date.now()+Math.random()};})
   };
   var fname=buildName()+'.json';
   var blob=new Blob([JSON.stringify(session,null,2)],{type:'application/json'});
@@ -545,7 +548,7 @@ function setStatus(state,msg){
 }
 
 function resetScan(){
-  scanned=[];expected=[];
+  scanned=[];expected=[];bolSlackUrl='';pkgSlackUrl='';
   dmgPhotos.forEach(function(p){URL.revokeObjectURL(p.url);});dmgPhotos=[];
   ['f-po','f-truck','f-seal','f-bol'].forEach(function(id){document.getElementById(id).value='';});
   setToday();
