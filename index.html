@@ -2,465 +2,547 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SKY01 Receiving — Laptop</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>SKY01 Receiving</title>
 <style>
-:root{--bg:#0f1117;--surf:#181c27;--card:#1e2336;--border:#2a3050;--accent:#3b82f6;--green:#22c55e;--gdim:rgba(34,197,94,.1);--yellow:#f59e0b;--red:#ef4444;--rdim:rgba(239,68,68,.1);--purple:#a78bfa;--text:#e2e8f0;--muted:#4b5775;--label:#7c8db0}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;min-height:100vh}
-header{background:var(--surf);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.logo{font-size:16px;font-weight:700;letter-spacing:-.3px}
-.logo em{color:var(--accent);font-style:normal}
-.ver{font-size:10px;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:3px 8px;border-radius:4px}
-.header-right{display:flex;align-items:center;gap:10px}
-.sync-status{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0}
-.sync-dot.ok{background:var(--green);box-shadow:0 0 5px var(--green)}
-.sync-dot.spin{background:var(--yellow);animation:pu 1s infinite}
+:root{--bg:#0a0d14;--surf:#111520;--card:#181e2d;--border:#222d45;--accent:#3b82f6;--aglow:rgba(59,130,246,.15);--green:#22c55e;--gdim:rgba(34,197,94,.12);--gbright:rgba(34,197,94,.22);--yellow:#f59e0b;--red:#ef4444;--rdim:rgba(239,68,68,.12);--purple:#a78bfa;--text:#e2e8f0;--muted:#475569;--label:#7c8db0;--r:12px;--sb:env(safe-area-inset-bottom,0px);--st:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,sans-serif;font-size:14px;overflow:hidden}
+.scr{position:fixed;inset:0;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:1;bottom:calc(44px + var(--sb))}
+.scr.active{transform:translateX(0)}
+#s-setup{bottom:0}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;padding-top:calc(11px + var(--st));background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0;gap:8px}
+.nav-title{font-size:16px;font-weight:700;letter-spacing:-.3px}
+.nav-title em{color:var(--accent);font-style:normal}
+.nav-right{display:flex;gap:6px}
+.nbtn{background:var(--card);border:1px solid var(--border);color:var(--label);font-size:12px;font-weight:600;padding:6px 12px;border-radius:20px;cursor:pointer;white-space:nowrap}
+.nbtn.hi{background:var(--accent);border-color:var(--accent);color:#fff}
+.body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:13px;display:flex;flex-direction:column;gap:10px;padding-bottom:calc(80px + var(--sb))}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r)}
+.ch{padding:11px 14px 0;display:flex;align-items:center;justify-content:space-between}
+.cl{font-size:10px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted)}
+.cb{padding:9px 14px 14px;display:flex;flex-direction:column;gap:8px}
+.fld{display:flex;flex-direction:column;gap:3px}
+.fld label{font-size:11px;color:var(--label);font-weight:500}
+.fld input,.fld select{background:var(--surf);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 11px;font-size:15px;outline:none;width:100%;-webkit-appearance:none;transition:border-color .15s}
+.fld input:focus,.fld select:focus{border-color:var(--accent)}
+.fld select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23475569'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:28px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.paste-row{display:flex;gap:6px}
+.paste-row input{flex:1;font-size:13px;padding:9px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surf);color:var(--text);outline:none}
+.paste-row button{padding:9px 14px;border-radius:8px;border:1px solid var(--border);background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.info{font-size:11px;color:var(--label);line-height:1.6;background:var(--surf);border-radius:8px;padding:8px 10px}
+.info strong{color:var(--text)}
+.st{font-size:12px;padding:8px 10px;border-radius:8px;display:none}
+.st.show{display:block}
+.st.ok{background:var(--gdim);color:var(--green)}
+.st.err{background:var(--rdim);color:var(--red)}
+.prog{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.prog.pend{border-color:var(--yellow)}
+.prog.done{border-color:var(--green);background:var(--gdim)}
+.prog-top{display:flex;justify-content:space-between;align-items:baseline}
+.prog-big{font-size:20px;font-weight:700}
+.prog-sub{font-size:11px;color:var(--muted)}
+.prog-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;transition:width .3s;background:var(--green)}
+.prog-fill.y{background:var(--yellow)}
+.scan-wrap{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:11px}
+.scan-lbl{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.ldot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);animation:pu 1.2s infinite;flex-shrink:0}
 @keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
-.layout{display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 49px)}
-.sidebar{background:var(--surf);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
-.sidebar-section{padding:14px 16px;border-bottom:1px solid var(--border)}
-.sidebar-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
-.field{margin-bottom:8px}
-.field label{display:block;font-size:11px;color:var(--label);margin-bottom:3px}
-.field input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:5px;color:var(--text);padding:7px 9px;font-size:12px;outline:none}
-.field input:focus{border-color:var(--accent)}
-.btn{padding:7px 12px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:background .15s}
-.btn.bl{background:var(--accent);color:#fff}
-.btn.bl:hover{background:#2563eb}
-.btn.sm{background:var(--card);border:1px solid var(--border);color:var(--label)}
-.btn.sm:hover{background:var(--border)}
-.btn.gr{background:var(--green);color:#000}
-.btn.re{background:transparent;border:1px solid var(--red);color:var(--red)}
-.btn:disabled{opacity:.4;cursor:default}
-.btn-row{display:flex;gap:6px;flex-wrap:wrap}
-.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px 10px;text-align:center}
-.stat-n{font-size:20px;font-weight:700;color:var(--text)}
-.stat-l{font-size:10px;color:var(--muted);margin-top:2px}
-.main{overflow:auto;display:flex;flex-direction:column}
-.toolbar{padding:12px 16px;background:var(--surf);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
-.toolbar input{background:var(--card);border:1px solid var(--border);border-radius:5px;color:var(--text);padding:6px 10px;font-size:12px;outline:none;width:200px}
-.toolbar input:focus{border-color:var(--accent)}
-.toolbar select{background:var(--card);border:1px solid var(--border);border-radius:5px;color:var(--text);padding:6px 10px;font-size:12px;outline:none}
-.toolbar-right{margin-left:auto;display:flex;gap:6px;align-items:center}
-.sel-label{font-size:11px;color:var(--muted)}
-table{width:100%;border-collapse:collapse;font-size:12px}
-thead th{background:var(--surf);color:var(--muted);font-weight:600;text-transform:uppercase;font-size:9px;letter-spacing:.7px;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);position:sticky;top:0;white-space:nowrap;z-index:1}
-thead th.cb-col{width:32px;text-align:center}
-tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
-tbody tr:hover{background:var(--surf)}
-tbody tr.sel{background:rgba(59,130,246,.08)}
-tbody td{padding:8px 10px;vertical-align:middle;white-space:nowrap}
-td.sn{font-family:'Courier New',monospace;color:var(--accent)}
-td.sns{font-family:'Courier New',monospace;color:var(--purple)}
-td.carrier{color:var(--yellow)}
-td.cb-col{text-align:center}
-.match-pill{font-size:10px;padding:2px 6px;border-radius:10px;font-weight:600}
-.match-pill.ok{background:var(--gdim);color:var(--green)}
-.match-pill.no{background:var(--rdim);color:var(--red)}
-.match-pill.un{color:var(--muted)}
-.nsim-btn{background:none;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:10px;padding:2px 7px;cursor:pointer}
-.nsim-btn.y{background:var(--gdim);border-color:var(--green);color:var(--green)}
-input[type=checkbox]{accent-color:var(--accent);width:13px;height:13px;cursor:pointer}
-.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);gap:8px;padding:40px}
-.empty-state .icon{font-size:36px;opacity:.3}
-.toast{position:fixed;bottom:20px;right:20px;background:var(--surf);border:1px solid var(--border);color:var(--text);padding:10px 16px;border-radius:6px;font-size:12px;font-weight:600;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;z-index:100}
-.toast.show{opacity:1;transform:translateY(0)}
+.sinp{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 11px;font-size:16px;font-family:'Courier New',monospace;color:var(--text);outline:none;transition:border-color .15s,background .15s}
+.sinp:focus{border-color:var(--accent)}
+.sinp.m{border-color:var(--green);background:var(--gbright)}
+.sinp.n{border-color:var(--red);background:var(--rdim)}
+.sfb{font-size:11px;margin-top:5px;min-height:16px;color:var(--muted)}
+.sfb.ok{color:var(--green)}
+.sfb.w{color:var(--red)}
+.sfb.i{color:var(--yellow)}
+.slist{display:flex;flex-direction:column;gap:4px;max-height:160px;overflow-y:auto}
+.si{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:7px;background:var(--surf);border:1px solid var(--border);font-size:11px;transition:all .2s}
+.si.ma{background:var(--gbright);border-color:var(--green)}
+.si.un{background:var(--rdim);border-color:var(--red)}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.si.ma .sdot{background:var(--green)}
+.si.un .sdot{background:var(--red)}
+.styp{font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:var(--card);color:var(--muted);flex-shrink:0;text-transform:uppercase}
+.si.ma .styp{background:var(--green);color:#000}
+.si.un .styp{background:var(--red);color:#fff}
+.ssn{flex:1;font-family:'Courier New',monospace;color:var(--text)}
+.sticky-save{position:fixed;bottom:calc(44px + var(--sb));left:0;right:0;padding:10px 14px;background:var(--bg);border-top:1px solid var(--border);z-index:4}
+.bbtn{width:100%;padding:13px;border-radius:var(--r);font-size:15px;font-weight:700;cursor:pointer;border:none;transition:opacity .15s}
+.bbtn:active{opacity:.8}
+.bbtn.gr{background:var(--green);color:#000}
+.bbtn.bl{background:var(--accent);color:#fff}
+.bbtn.re{background:transparent;border:1px solid var(--red);color:var(--red)}
+.bbtn:disabled{background:var(--border);color:var(--muted);cursor:default;opacity:1}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10;display:flex;align-items:flex-end;justify-content:center}
+.modal-bg.hide{display:none}
+.modal{background:var(--surf);border:1px solid var(--border);border-radius:16px 16px 0 0;padding:20px 16px calc(20px + var(--sb));width:100%;max-width:500px;display:flex;flex-direction:column;gap:10px}
+.modal h3{font-size:16px;font-weight:700}
+.mstep{display:flex;gap:10px;padding:9px 10px;background:var(--card);border-radius:8px;border:1px solid var(--border)}
+.mnum{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mstep p{font-size:12px;color:var(--text);line-height:1.5}
+.mstep p strong{color:var(--accent)}
+.modal-btns{display:flex;gap:8px}
+.modal-btns button{flex:1;padding:11px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:none}
+.btn-dl{background:var(--accent);color:#fff}
+.btn-done{background:var(--card);border:1px solid var(--border);color:var(--text)}
+.tabs{position:fixed;bottom:0;left:0;right:0;display:none;background:var(--surf);border-top:1px solid var(--border);padding-bottom:max(0px,var(--sb));z-index:5}
+.tabs-inner{display:flex}
+.tab{flex:1;padding:8px 4px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:var(--muted);font-size:9px;font-weight:700;text-transform:uppercase;border:none;background:none}
+.tab.on{color:var(--accent)}
+.tab .ti{font-size:19px}
+.setup-hero{text-align:center;padding:24px 16px 6px}
+.setup-hero h1{font-size:26px;font-weight:800;letter-spacing:-1px}
+.setup-hero h1 em{color:var(--accent);font-style:normal}
+.setup-hero p{color:var(--muted);font-size:12px;margin-top:4px}
+.toast{position:fixed;bottom:calc(60px + var(--sb));left:50%;transform:translateX(-50%) translateY(12px);background:var(--surf);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:20px;font-size:12px;font-weight:600;opacity:0;transition:all .22s;pointer-events:none;white-space:nowrap;z-index:20}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.g{border-color:var(--green);color:var(--green)}
 .toast.r{border-color:var(--red);color:var(--red)}
-.new-row{animation:flash .8s ease-out}
-@keyframes flash{0%{background:rgba(59,130,246,.25)}100%{background:transparent}}
+.toast.y{border-color:var(--yellow);color:var(--yellow)}
+.ver{text-align:center;font-size:10px;color:var(--muted);padding:8px}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">SKY01 <em>Receiving Laptop</em></div>
-  <div class="header-right">
-    <div class="sync-status">
-      <div class="sync-dot" id="sync-dot"></div>
-      <span id="sync-label">Not polling</span>
+<!-- SETUP -->
+<div class="scr active" id="s-setup">
+  <div class="nav"><div class="nav-title">SKY01 <em>Receiving</em></div></div>
+  <div class="body">
+    <div class="setup-hero">
+      <h1>Receiving <em>Vault</em></h1>
+      <p>Phone app v1.0 — dock scanning</p>
     </div>
-    <span class="ver">v1.0</span>
-  </div>
-</header>
-
-<div class="layout">
-
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Drive Sync</div>
-      <div class="field">
-        <label>Google OAuth Client ID</label>
-        <input type="text" id="gcid" placeholder="xxxx.apps.googleusercontent.com" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>Folder ID</label>
-        <input type="text" id="folder-id" value="1YYQ4_RtGRGkTChOHmLq_FbfC980uRwNe">
-      </div>
-      <div class="btn-row">
-        <button class="btn bl" onclick="startPolling()">Start Polling</button>
-        <button class="btn sm" onclick="stopPolling()">Stop</button>
-      </div>
-      <div style="margin-top:8px;font-size:11px;color:var(--muted)" id="poll-info">Checks Drive every 5s for new truck JSON files</div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Today's Stats</div>
-      <div class="stat-row">
-        <div class="stat"><div class="stat-n" id="stat-total">0</div><div class="stat-l">Total serials</div></div>
-        <div class="stat"><div class="stat-n" id="stat-matched" style="color:var(--green)">0</div><div class="stat-l">Matched</div></div>
-      </div>
-      <div class="stat-row">
-        <div class="stat"><div class="stat-n" id="stat-b200" style="color:var(--accent)">0</div><div class="stat-l">B200</div></div>
-        <div class="stat"><div class="stat-n" id="stat-sc" style="color:var(--purple)">0</div><div class="stat-l">SideCar</div></div>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">NS Export</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Select rows in log then copy serials for NS receipt</div>
-      <div class="btn-row">
-        <button class="btn gr" id="copy-ns-btn" onclick="copyForNS()" disabled>Copy selected for NS</button>
-      </div>
-      <div style="margin-top:8px;font-size:11px;color:var(--muted)" id="sel-info">0 rows selected</div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Data</div>
-      <div class="btn-row">
-        <button class="btn sm" onclick="exportJSON()">Export JSON</button>
-        <button class="btn re" onclick="clearAll()">Clear all</button>
-      </div>
-    </div>
-
-    <div class="sidebar-section" style="flex:1">
-      <div class="sidebar-label">Manual Import</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Drag a phone JSON file here to import manually</div>
-      <div id="drop-zone" style="border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;font-size:11px;color:var(--muted);cursor:pointer;transition:all .2s" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" onclick="document.getElementById('file-inp').click()">
-        Drop JSON here or click to browse
-      </div>
-      <input type="file" id="file-inp" accept=".json" style="display:none" onchange="onFileSelect(this)">
-    </div>
-
-  </div>
-
-  <!-- MAIN TABLE -->
-  <div class="main">
-    <div class="toolbar">
-      <input type="text" id="search" placeholder="Search serial, PO, seal..." oninput="renderTable()">
-      <select id="filter-type" onchange="renderTable()">
-        <option value="">All types</option>
-        <option value="B200">B200</option>
-        <option value="SideCar">SideCar</option>
-        <option value="UNKNOWN">Unknown</option>
-      </select>
-      <select id="filter-date" onchange="renderTable()">
-        <option value="">All dates</option>
-      </select>
-      <div class="toolbar-right">
-        <span class="sel-label" id="toolbar-sel">0 selected</span>
-        <input type="checkbox" id="sel-all" onchange="toggleAll(this.checked)" title="Select all visible">
-        <label for="sel-all" style="font-size:11px;color:var(--label);cursor:pointer">Select all</label>
-      </div>
-    </div>
-    <div id="table-wrap" style="flex:1;overflow:auto">
-      <div class="empty-state" id="empty-state">
-        <div class="icon">&#128230;</div>
-        <p style="font-size:13px;text-align:center">No data yet.<br>Start Drive polling or drag in a JSON file.</p>
+    <div class="card">
+      <div class="ch"><span class="cl">Drive Folder ID</span></div>
+      <div class="cb">
+        <div class="fld">
+          <label>Paste your SKY01_Receiving folder ID</label>
+          <input type="text" id="setup-folder" value="1YYQ4_RtGRGkTChOHmLq_FbfC980uRwNe" autocorrect="off" autocapitalize="off" spellcheck="false">
+        </div>
+        <div class="info">JSON files save to your iPhone Downloads. Open Files app &rarr; share to this Drive folder after each truck.</div>
+        <button class="bbtn bl" onclick="doSetup()">Start</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- SCAN -->
+<div class="scr" id="s-scan">
+  <div class="nav">
+    <div class="nav-title">&#128230; <em>Receiving</em></div>
+    <div class="nav-right">
+      <button class="nbtn" onclick="goSettings()">&#9881;</button>
+    </div>
+  </div>
+  <div class="body">
+
+    <!-- BOL -->
+    <div class="card">
+      <div class="ch">
+        <span class="cl">BOL — from driver</span>
+        <span id="bol-badge" style="font-size:10px;color:var(--green);display:none">&#10003; Done</span>
+      </div>
+      <div class="cb">
+        <div class="info"><strong>1.</strong> DM BOL photo to yourself in Slack &nbsp;<strong>2.</strong> Say "read my BOL" in Claude chat &nbsp;<strong>3.</strong> Paste code below</div>
+        <div class="paste-row">
+          <input type="text" id="bol-inp" placeholder="Paste RCVVAULT: code..." autocorrect="off" autocapitalize="off" spellcheck="false">
+          <button onclick="doBOL()">Fill</button>
+        </div>
+        <div class="st" id="bol-st"></div>
+        <div class="row2">
+          <div class="fld"><label>Date</label><input type="date" id="f-date"></div>
+          <div class="fld"><label>Carrier</label>
+            <select id="f-carrier">
+              <option value="AIT">AIT</option><option value="KESCO">KESCO</option>
+              <option value="FEDEX">FedEx</option><option value="UPS">UPS</option><option value="OTHER">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="fld"><label>Truck #</label><input type="text" id="f-truck" placeholder="7" autocorrect="off" spellcheck="false"></div>
+          <div class="fld"><label>Seal #</label><input type="text" id="f-seal" placeholder="UL-5694842" autocorrect="off" spellcheck="false"></div>
+        </div>
+        <div class="row2">
+          <div class="fld"><label>BOL / Tracking #</label><input type="text" id="f-bol" placeholder="25710833" autocorrect="off" spellcheck="false"></div>
+          <div class="fld"><label>PO / TO #</label><input type="text" id="f-po" placeholder="PO7992" autocorrect="off" spellcheck="false"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCAN -->
+    <div class="card">
+      <div class="ch">
+        <span class="cl">Scan racks</span>
+        <span style="font-size:11px;color:var(--muted)" id="scan-ct">0 scanned</span>
+      </div>
+      <div class="cb">
+        <div class="prog pend" id="prog">
+          <div class="prog-top">
+            <div class="prog-big" id="prog-big" style="color:var(--yellow)">0 scanned</div>
+            <div class="prog-sub" id="prog-sub">Paste packing list code after</div>
+          </div>
+          <div class="prog-bar"><div class="prog-fill y" id="prog-fill" style="width:0%"></div></div>
+        </div>
+        <div class="scan-wrap">
+          <div class="scan-lbl"><span class="ldot"></span>Ready to scan</div>
+          <input class="sinp" id="scan-inp" placeholder="Scan serial number..." autocorrect="off" autocapitalize="characters" spellcheck="false" onkeydown="onKey(event)" oninput="onLive(this)">
+          <div class="sfb" id="sfb"></div>
+        </div>
+        <div id="slist-wrap" style="display:none">
+          <div style="font-size:11px;color:var(--label);margin-bottom:4px">Scanned</div>
+          <div class="slist" id="slist"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PACKING LIST -->
+    <div class="card">
+      <div class="ch">
+        <span class="cl">Packing list — last crate</span>
+        <span id="pkg-badge" style="font-size:10px;color:var(--green);display:none">&#10003; Matched</span>
+      </div>
+      <div class="cb">
+        <div class="info"><strong>1.</strong> DM packing list photo in Slack &nbsp;<strong>2.</strong> Say "read my packing list" in Claude &nbsp;<strong>3.</strong> Paste code below</div>
+        <div class="paste-row">
+          <input type="text" id="pkg-inp" placeholder="Paste RCVVAULT_PKG: code..." autocorrect="off" autocapitalize="off" spellcheck="false">
+          <button onclick="doPKG()">Match</button>
+        </div>
+        <div class="st" id="pkg-st"></div>
+      </div>
+    </div>
+
+    <!-- DAMAGE -->
+    <div class="card">
+      <div class="ch"><span class="cl">Damage photos — optional</span></div>
+      <div class="cb">
+        <label style="display:flex;align-items:center;gap:8px;padding:10px;background:var(--surf);border:1px dashed var(--border);border-radius:8px;cursor:pointer;font-size:12px;color:var(--label)" for="dmg-file">
+          &#9888;&#65039; <span id="dmg-lbl">Add damage photo</span>
+        </label>
+        <input type="file" id="dmg-file" accept="image/*" onchange="addDMG(this)" style="display:none">
+        <div id="dmg-strip" style="display:none;gap:6px;overflow-x:auto;padding:2px 0"></div>
+      </div>
+    </div>
+
+    <div class="ver">SKY01 Receiving Vault v1.0 — Phone</div>
+
+  </div>
+
+  <div class="sticky-save">
+    <button class="bbtn gr" id="sub-btn" onclick="openModal()" disabled>Save &amp; Export to Files</button>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="scr" id="s-settings">
+  <div class="nav">
+    <div class="nav-title"><em>Settings</em></div>
+    <div class="nav-right"><button class="nbtn" onclick="goScan()">&#8592; Back</button></div>
+  </div>
+  <div class="body">
+    <div class="card">
+      <div class="ch"><span class="cl">Drive Folder ID</span></div>
+      <div class="cb">
+        <div class="fld">
+          <label>SKY01_Receiving folder ID</label>
+          <input type="text" id="cfg-folder" autocorrect="off" autocapitalize="off" spellcheck="false">
+        </div>
+        <button class="bbtn bl" onclick="saveSettings()">Save</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:10px">
+      <div class="ch"><span class="cl">Workflow</span></div>
+      <div class="cb">
+        <div class="info" style="line-height:1.8">
+          <strong>BOL:</strong> Slack DM photo &rarr; "read my BOL" in Claude &rarr; paste RCVVAULT: code<br>
+          <strong>Packing list:</strong> Slack DM photo &rarr; "read my packing list" &rarr; paste RCVVAULT_PKG: code<br>
+          <strong>Save:</strong> Downloads folder &rarr; Files app &rarr; Share &rarr; Save to Drive &rarr; SKY01_Receiving folder<br>
+          <strong>Laptop:</strong> Laptop app polls Drive and picks up JSON automatically
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg hide" id="modal">
+  <div class="modal">
+    <h3>Save &amp; Export</h3>
+    <div class="mstep"><div class="mnum">1</div><p>Tap <strong>Save to Drive</strong> &mdash; sends directly to Sky01 Receiving folder.</p></div>
+    <div class="mstep"><div class="mnum">2</div><p>Laptop picks it up <strong>automatically within 5 seconds</strong>.</p></div>
+    <div class="mstep"><div class="mnum">3</div><p>Status bar shows <strong>Saved to Drive</strong> when complete.</p></div>
+    <div class="modal-btns">
+      <button class="btn-dl" onclick="doSave()">Download JSON</button>
+      <button class="btn-done" onclick="closeModal()">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="tabs" id="tabs" style="display:none"></div>
 <div class="toast" id="toast"></div>
 
 <script>
-var log=[];
-var selected={};
-var pollInterval=null;
-var gToken=null;
-var knownFiles={};
-
-try{var s=localStorage.getItem('rcv_laptop_log');if(s){log=JSON.parse(s);}}catch(e){}
-try{var kf=localStorage.getItem('rcv_known_files');if(kf)knownFiles=JSON.parse(kf);}catch(e){}
+var scanned=[],expected=[],dmgPhotos=[];
+var SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNGujK5zlcO_p5oObA608ZwgvKiqi_N1Eo0sualDIQFU1IRJN9NBtrp-NRACiGgFNrqA/exec';
 
 window.onload=function(){
-  var gcid=localStorage.getItem('rcv_gcid')||'';
-  var folder=localStorage.getItem('rcv_folder')||'1YYQ4_RtGRGkTChOHmLq_FbfC980uRwNe';
-  document.getElementById('gcid').value=gcid;
-  document.getElementById('folder-id').value=folder;
-  renderTable();
-  updateStats();
-  updateSelInfo();
+  var folder=localStorage.getItem('rcv_folder');
+  if(folder){
+    document.getElementById('cfg-folder').value=folder;
+    startApp();
+  } else {
+    show('s-setup');
+  }
+  setToday();
 };
 
-// POLLING
-function startPolling(){
-  var gcid=document.getElementById('gcid').value.trim();
-  var folder=document.getElementById('folder-id').value.trim();
-  if(!gcid){toast('Enter Google OAuth Client ID','r');return;}
+function setToday(){var t=new Date();var el=document.getElementById('f-date');if(el&&!el.value)el.value=t.getFullYear()+'-'+p2(t.getMonth()+1)+'-'+p2(t.getDate());}
+function p2(n){return n<10?'0'+n:''+n;}
+
+function doSetup(){
+  var folder=document.getElementById('setup-folder').value.trim();
   if(!folder){toast('Enter folder ID','r');return;}
-  localStorage.setItem('rcv_gcid',gcid);
   localStorage.setItem('rcv_folder',folder);
-  getToken(function(token){
-    if(!token){toast('Google auth failed','r');return;}
-    gToken=token;
-    setSyncStatus('spin','Polling...');
-    pollDrive();
-    pollInterval=setInterval(pollDrive,5000);
-    toast('Polling started','g');
-  });
+  startApp();
 }
 
-function stopPolling(){
-  if(pollInterval){clearInterval(pollInterval);pollInterval=null;}
-  setSyncStatus('','Stopped');
-  toast('Polling stopped','');
+function startApp(){
+  show('s-scan');
 }
 
-function pollDrive(){
-  if(!gToken)return;
-  var folder=document.getElementById('folder-id').value.trim();
-  fetch('https://www.googleapis.com/drive/v3/files?q=name+contains+%27SKY01_%27+and+%27'+folder+'%27+in+parents+and+trashed%3Dfalse+and+mimeType%3D%27application%2Fjson%27&orderBy=createdTime+desc&fields=files(id,name,createdTime)',{
-    headers:{Authorization:'Bearer '+gToken}
+function show(id){
+  ['s-setup','s-scan','s-settings'].forEach(function(s){document.getElementById(s).classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+}
+function goScan(){show('s-scan');}
+function goSettings(){
+  document.getElementById('cfg-folder').value=localStorage.getItem('rcv_folder')||'';
+  show('s-settings');
+}
+function saveSettings(){
+  var folder=document.getElementById('cfg-folder').value.trim();
+  if(folder)localStorage.setItem('rcv_folder',folder);
+  toast('Saved','g');
+  goScan();
+}
+
+function doBOL(){
+  var raw=document.getElementById('bol-inp').value.trim();
+  if(!raw){showSt('bol-st','err','Paste a RCVVAULT: code first');return;}
+  var idx=raw.indexOf('RCVVAULT:');
+  if(idx===-1){showSt('bol-st','err','Not a valid RCVVAULT code');return;}
+  var j=raw.slice(idx+9).trim();
+  var pi=j.indexOf('RCVVAULT_PKG:');if(pi>-1)j=j.slice(0,pi).trim();
+  try{
+    var p=JSON.parse(j);
+    if(p.date)document.getElementById('f-date').value=p.date;
+    if(p.carrier){var sel=document.getElementById('f-carrier');var up=p.carrier.toUpperCase();for(var i=0;i<sel.options.length;i++){if(up.indexOf(sel.options[i].value)>=0){sel.value=sel.options[i].value;break;}}}
+    if(p.truck)document.getElementById('f-truck').value=p.truck;
+    if(p.seal)document.getElementById('f-seal').value=p.seal;
+    if(p.bol)document.getElementById('f-bol').value=p.bol;
+    if(p.po)document.getElementById('f-po').value=p.po;
+    document.getElementById('bol-inp').value='';
+    document.getElementById('bol-badge').style.display='inline';
+    showSt('bol-st','ok','BOL filled — verify above');
+    toast('BOL filled','g');
+  }catch(e){showSt('bol-st','err','Invalid code — copy again');}
+}
+
+function doPKG(){
+  var raw=document.getElementById('pkg-inp').value.trim();
+  if(!raw){showSt('pkg-st','err','Paste a RCVVAULT_PKG: code first');return;}
+  var idx=raw.indexOf('RCVVAULT_PKG:');
+  if(idx===-1){showSt('pkg-st','err','Not a valid RCVVAULT_PKG code');return;}
+  var j=raw.slice(idx+13).trim();
+  try{
+    var p=JSON.parse(j);
+    if(p.po)document.getElementById('f-po').value=p.po;
+    if(p.serials&&p.serials.length){
+      expected=p.serials.map(function(s){return{sn:s.sn.trim().toUpperCase(),type:s.type||'B200'};});
+      scanned.forEach(function(sc){
+        sc.matched=false;sc.type='UNKNOWN';
+        for(var j=0;j<expected.length;j++){if(expected[j].sn===sc.sn){sc.matched=true;sc.type=expected[j].type;break;}}
+      });
+      renderScanned();updateProg();
+      var m=scanned.filter(function(s){return s.matched;}).length;
+      showSt('pkg-st','ok',m+'/'+expected.length+' matched'+(m<expected.length?' — '+(expected.length-m)+' not yet scanned':''));
+      document.getElementById('pkg-badge').style.display='inline';
+      document.getElementById('pkg-inp').value='';
+      toast('Packing list matched','g');
+    }else{showSt('pkg-st','err','No serials in code');}
+  }catch(e){showSt('pkg-st','err','Invalid code — copy again');}
+}
+
+function addDMG(input){
+  var file=input.files[0];if(!file)return;
+  var url=URL.createObjectURL(file);
+  dmgPhotos.push({blob:file,url:url});
+  var strip=document.getElementById('dmg-strip');
+  strip.style.display='flex';strip.innerHTML='';
+  dmgPhotos.forEach(function(p){strip.innerHTML+='<div style="width:54px;height:54px;border-radius:7px;overflow:hidden;flex-shrink:0;border:1px solid var(--border)"><img src="'+p.url+'" style="width:100%;height:100%;object-fit:cover"></div>';});
+  document.getElementById('dmg-lbl').textContent=dmgPhotos.length+' damage photo(s) — add more';
+  input.value='';
+}
+
+function onKey(e){
+  if(e.key==='Enter'){
+    e.preventDefault();
+    var v=e.target.value.trim().toUpperCase();if(!v)return;
+    doScan(v);
+    e.target.value='';e.target.className='sinp';
+    document.getElementById('sfb').textContent='';document.getElementById('sfb').className='sfb';
+  }
+}
+
+function onLive(inp){
+  var v=inp.value.trim().toUpperCase(),fb=document.getElementById('sfb');
+  if(!v){inp.className='sinp';fb.textContent='';fb.className='sfb';return;}
+  if(scanned.find(function(s){return s.sn===v;})){inp.className='sinp n';fb.className='sfb w';fb.textContent='Already scanned';return;}
+  if(expected.length){
+    var f=expected.find(function(e){return e.sn===v;});
+    if(f){inp.className='sinp m';fb.className='sfb ok';fb.textContent='On packing list — '+f.type;}
+    else if(v.length>=6){inp.className='sinp n';fb.className='sfb w';fb.textContent='Not on packing list';}
+  }else if(v.length>=6){inp.className='sinp';fb.className='sfb i';fb.textContent='Paste packing list after scanning';}
+}
+
+function doScan(sn){
+  if(scanned.find(function(s){return s.sn===sn;})){toast('Already scanned','y');return;}
+  var type='UNKNOWN',matched=null;
+  if(expected.length){
+    matched=false;
+    var f=expected.find(function(e){return e.sn===sn;});
+    if(f){type=f.type;matched=true;}
+  }
+  scanned.push({sn:sn,type:type,matched:matched});
+  renderScanned();updateProg();
+  document.getElementById('sub-btn').disabled=false;
+  if(expected.length){if(matched)toast(type+': ...'+sn.slice(-6),'g');else toast('Not on list: ...'+sn.slice(-6),'y');}
+  else toast('Scanned: ...'+sn.slice(-6),'g');
+}
+
+function renderScanned(){
+  var w=document.getElementById('slist-wrap'),l=document.getElementById('slist');
+  if(!scanned.length){w.style.display='none';return;}
+  w.style.display='block';
+  var h='';
+  for(var i=scanned.length-1;i>=0;i--){
+    var s=scanned[i];
+    var cls=s.matched===true?'ma':s.matched===false?'un':'';
+    var icon=s.matched===true?'&#10003;':s.matched===false?'&#10005;':'&middot;';
+    h+='<div class="si '+cls+'"><div class="sdot"></div><span class="styp">'+(s.type==='UNKNOWN'?'?':s.type)+'</span><span class="ssn">'+s.sn+'</span><span style="font-size:11px">'+icon+'</span></div>';
+  }
+  l.innerHTML=h;
+  document.getElementById('scan-ct').textContent=scanned.length+' scanned';
+}
+
+function updateProg(){
+  var wrap=document.getElementById('prog'),big=document.getElementById('prog-big'),sub=document.getElementById('prog-sub'),fill=document.getElementById('prog-fill');
+  var n=scanned.length;
+  if(!expected.length){
+    big.style.color='var(--yellow)';big.textContent=n+' scanned';
+    sub.textContent='Paste packing list after scanning';
+    fill.className='prog-fill y';fill.style.width=n?'55%':'0%';wrap.className='prog pend';return;
+  }
+  var tot=expected.length,m=0,u=0;
+  scanned.forEach(function(s){if(s.matched===true)m++;if(s.matched===false)u++;});
+  fill.style.width=Math.round((m/tot)*100)+'%';fill.className='prog-fill';
+  if(m===tot&&tot>0){big.style.color='var(--green)';big.textContent=m+'/'+tot+' matched';sub.textContent='All serials matched';wrap.className='prog done';}
+  else{big.style.color='var(--text)';big.textContent=m+'/'+tot;sub.textContent=(tot-m)+' not scanned'+(u?' · '+u+' unexpected':'');wrap.className='prog';}
+}
+
+function getH(){
+  return{date:document.getElementById('f-date').value,carrier:document.getElementById('f-carrier').value,po:document.getElementById('f-po').value.trim(),truck:document.getElementById('f-truck').value.trim(),seal:document.getElementById('f-seal').value.trim(),bol:document.getElementById('f-bol').value.trim(),folderId:localStorage.getItem('rcv_folder')||''};
+}
+
+function buildName(){
+  var h=getH();
+  var po=(h.po||'UNKNPO').replace(/[^A-Z0-9]/gi,'');
+  var truck=(h.truck||'0').replace(/[^0-9]/g,'')||'0';
+  var seal=(h.seal||'NOSEAL').replace(/[^A-Z0-9]/gi,'');
+  var ds=(h.date||new Date().toISOString().slice(0,10)).replace(/-/g,'');
+  return'SKY01_'+po+'_T'+truck+'_'+seal+'_'+ds;
+}
+
+function openModal(){document.getElementById('modal').classList.remove('hide');}
+function closeModal(){document.getElementById('modal').classList.add('hide');resetScan();}
+
+function doSave(){
+  var h=getH();
+  var m=scanned.filter(function(s){return s.matched;}).length;
+  var session={
+    exportedAt:new Date().toISOString(),
+    version:'1.0',
+    header:h,
+    expected:expected,
+    scanned:scanned,
+    matchSummary:expected.length?m+'/'+expected.length+' matched':scanned.length+' scanned (no packing list)',
+    rows:scanned.map(function(s){return{date:h.date,carrier:h.carrier,po:h.po,truck:h.truck,seal:h.seal,bol:h.bol,b200:(s.type==='B200'||s.type==='UNKNOWN')?s.sn:'',sc:s.type==='SideCar'?s.sn:'',itemType:s.type,matched:s.matched,nsim:false,id:Date.now()+Math.random()};})
+  };
+  var fname=buildName()+'.json';
+  var blob=new Blob([JSON.stringify(session,null,2)],{type:'application/json'});
+  var file=new File([blob],fname,{type:'application/json'});
+  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+    navigator.share({files:[file],title:fname})
+    .then(function(){toast('Shared — save to Drive','g');syncToDrive(session);})
+    .catch(function(e){if(e.name!=='AbortError'){dlBlob(blob,fname);}});
+  }else{
+    dlBlob(blob,fname);
+    syncToDrive(session);
+  }
+  dmgPhotos.forEach(function(p,i){setTimeout(function(){dlBlob(p.blob,buildName()+'_DMG_'+(i+1)+'.jpg');},( i+1)*700);});
+}
+
+function syncToDrive(session){
+  setStatus('sy','Saving to Drive...');
+  fetch(SCRIPT_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(session)
   })
   .then(function(r){return r.json();})
   .then(function(d){
-    if(!d.files)return;
-    var newFound=false;
-    d.files.forEach(function(f){
-      if(!knownFiles[f.id]){
-        knownFiles[f.id]=true;
-        localStorage.setItem('rcv_known_files',JSON.stringify(knownFiles));
-        fetchAndImport(f.id,f.name);
-        newFound=true;
-      }
-    });
-    var t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    setSyncStatus('ok','Last check: '+t);
-  })
-  .catch(function(e){setSyncStatus('','Poll error');});
-}
-
-function fetchAndImport(fileId,fname){
-  fetch('https://www.googleapis.com/drive/v3/files/'+fileId+'?alt=media',{
-    headers:{Authorization:'Bearer '+gToken}
-  })
-  .then(function(r){return r.json();})
-  .then(function(data){
-    if(data.rows&&data.rows.length){
-      var added=0;
-      data.rows.forEach(function(row){
-        if(!log.find(function(r){return r.id===row.id;})){
-          row._source=fname;
-          log.push(row);
-          added++;
-        }
-      });
-      if(added){
-        saveLog();renderTable();updateStats();
-        toast(added+' rows from '+fname,'g');
-      }
+    if(d.success){
+      setStatus('ok','Saved to Drive: '+d.filename);
+      toast('Saved to Drive','g');
+    }else{
+      setStatus('er','Drive error: '+(d.error||'unknown'));
+      toast('Drive save failed','r');
     }
   })
-  .catch(function(e){console.error('Import error',e);});
-}
-
-// GOOGLE TOKEN
-function getToken(cb){
-  var gcid=document.getElementById('gcid').value.trim();
-  if(gToken){cb(gToken);return;}
-  if(!window.google||!window.google.accounts){
-    var sc=document.createElement('script');
-    sc.src='https://accounts.google.com/gsi/client';
-    sc.onload=function(){requestToken(gcid,cb);};
-    document.head.appendChild(sc);
-  }else{requestToken(gcid,cb);}
-}
-
-function requestToken(gcid,cb){
-  var tc=google.accounts.oauth2.initTokenClient({
-    client_id:gcid,
-    scope:'https://www.googleapis.com/auth/drive.readonly',
-    callback:function(r){if(r.access_token){gToken=r.access_token;cb(r.access_token);}else cb(null);}
-  });
-  tc.requestAccessToken({prompt:''});
-}
-
-// MANUAL IMPORT
-function onDragOver(e){e.preventDefault();document.getElementById('drop-zone').style.borderColor='var(--accent)';}
-function onDragLeave(e){document.getElementById('drop-zone').style.borderColor='var(--border)';}
-function onDrop(e){
-  e.preventDefault();
-  document.getElementById('drop-zone').style.borderColor='var(--border)';
-  var file=e.dataTransfer.files[0];
-  if(file)readFile(file);
-}
-function onFileSelect(inp){var file=inp.files[0];if(file)readFile(file);}
-function readFile(file){
-  var r=new FileReader();
-  r.onload=function(){
-    try{
-      var data=JSON.parse(r.result);
-      if(data.rows&&data.rows.length){
-        var added=0;
-        data.rows.forEach(function(row){
-          if(!log.find(function(r){return r.id===row.id;})){row._source=file.name;log.push(row);added++;}
-        });
-        saveLog();renderTable();updateStats();
-        toast(added+' rows imported from '+file.name,'g');
-      }else{toast('No rows found in file','r');}
-    }catch(e){toast('Invalid JSON file','r');}
-  };
-  r.readAsText(file);
-}
-
-// TABLE
-function getFiltered(){
-  var q=(document.getElementById('search').value||'').toLowerCase();
-  var ft=document.getElementById('filter-type').value;
-  var fd=document.getElementById('filter-date').value;
-  return log.filter(function(r){
-    if(ft&&r.itemType!==ft)return false;
-    if(fd&&r.date!==fd)return false;
-    if(q){var s=((r.b200||r.sc||'')+(r.po||'')+(r.seal||'')+(r.carrier||'')+(r.date||'')+(r.bol||'')).toLowerCase();if(s.indexOf(q)===-1)return false;}
-    return true;
+  .catch(function(err){
+    setStatus('er','Network error — check WiFi');
+    toast('Drive save failed','r');
   });
 }
 
-function renderTable(){
-  var rows=getFiltered();
-  var wrap=document.getElementById('table-wrap');
-  var empty=document.getElementById('empty-state');
-
-  // Update date filter options
-  var dates=[...new Set(log.map(function(r){return r.date;}))].filter(Boolean).sort().reverse();
-  var df=document.getElementById('filter-date');
-  var curDate=df.value;
-  df.innerHTML='<option value="">All dates</option>';
-  dates.forEach(function(d){df.innerHTML+='<option value="'+d+'"'+(d===curDate?' selected':'')+'>'+d.replace(/-/g,'/')+'</option>';});
-
-  if(!rows.length){
-    wrap.innerHTML='';
-    if(!document.getElementById('empty-state')){
-      var es=document.createElement('div');es.className='empty-state';es.id='empty-state';
-      es.innerHTML='<div class="icon">&#128230;</div><p style="font-size:13px;text-align:center">'+(log.length?'No results for this filter':'No data yet.<br>Start Drive polling or drag in a JSON file.')+'</p>';
-      wrap.appendChild(es);
-    }
-    updateToolbarSel();return;
-  }
-
-  var h='<table><thead><tr>'
-    +'<th class="cb-col"><input type="checkbox" id="thead-cb" onchange="toggleAll(this.checked)"></th>'
-    +'<th>#</th><th>Date</th><th>PO/TO</th><th>Truck</th><th>Seal</th><th>Carrier</th><th>BOL/Tracking</th><th>NSIM</th><th>B200 Rack SN</th><th>SideCar SN</th><th>Match</th>'
-    +'</tr></thead><tbody>';
-
-  rows.forEach(function(r,i){
-    var d=(r.date||'').replace(/-/g,'/');
-    var isSel=!!selected[r.id];
-    var matchCell=r.matched===true?'<span class="match-pill ok">&#10003;</span>':r.matched===false?'<span class="match-pill no">&#10005;</span>':'<span class="match-pill un">—</span>';
-    h+='<tr class="'+(isSel?'sel':'')+'" id="tr-'+r.id+'">'
-      +'<td class="cb-col"><input type="checkbox" '+(isSel?'checked':'')+' onchange="toggleRow(\''+r.id+'\',this.checked)"></td>'
-      +'<td style="color:var(--muted)">'+(i+1)+'</td>'
-      +'<td>'+d+'</td><td>'+(r.po||'')+'</td><td>'+(r.truck||'')+'</td><td>'+(r.seal||'')+'</td>'
-      +'<td class="carrier">'+(r.carrier||'')+'</td>'
-      +'<td>'+(r.bol||'')+'</td>'
-      +'<td><button class="nsim-btn'+(r.nsim?' y':'')+'" onclick="toggleNSIM(\''+r.id+'\')">'+(r.nsim?'Y':'—')+'</button></td>'
-      +'<td class="sn">'+(r.b200||'—')+'</td>'
-      +'<td class="sns">'+(r.sc||'—')+'</td>'
-      +'<td>'+matchCell+'</td>'
-      +'</tr>';
-  });
-  h+='</tbody></table>';
-  wrap.innerHTML=h;
-  updateToolbarSel();
+function setStatus(state,msg){
+  var dot=document.getElementById('sdot');
+  var label=document.getElementById('slabel');
+  if(dot)dot.className='sdot'+(state==='sy'?' sy':state==='ok'?' ok':state==='er'?' er':'');
+  if(label)label.textContent=msg;
 }
 
-function toggleRow(id,checked){
-  if(checked)selected[id]=true;else delete selected[id];
-  var tr=document.getElementById('tr-'+id);if(tr)tr.classList.toggle('sel',checked);
-  updateSelInfo();updateToolbarSel();
+function resetScan(){
+  scanned=[];expected=[];
+  dmgPhotos.forEach(function(p){URL.revokeObjectURL(p.url);});dmgPhotos=[];
+  ['f-po','f-truck','f-seal','f-bol'].forEach(function(id){document.getElementById(id).value='';});
+  setToday();
+  document.getElementById('scan-inp').value='';document.getElementById('sfb').textContent='';document.getElementById('scan-inp').className='sinp';
+  document.getElementById('slist-wrap').style.display='none';
+  document.getElementById('dmg-strip').style.display='none';document.getElementById('dmg-lbl').textContent='Add damage photo';
+  document.getElementById('bol-badge').style.display='none';document.getElementById('pkg-badge').style.display='none';
+  document.getElementById('bol-st').className='st';document.getElementById('pkg-st').className='st';
+  document.getElementById('scan-ct').textContent='0 scanned';document.getElementById('sub-btn').disabled=true;
+  updateProg();
 }
 
-function toggleAll(checked){
-  var rows=getFiltered();
-  rows.forEach(function(r){if(checked)selected[r.id]=true;else delete selected[r.id];});
-  renderTable();updateSelInfo();
-}
-
-function updateToolbarSel(){
-  var n=Object.keys(selected).length;
-  document.getElementById('toolbar-sel').textContent=n+' selected';
-  var cb=document.getElementById('copy-ns-btn');if(cb)cb.disabled=n===0;
-}
-function updateSelInfo(){
-  var n=Object.keys(selected).length;
-  document.getElementById('sel-info').textContent=n+' rows selected';
-  var cb=document.getElementById('copy-ns-btn');if(cb)cb.disabled=n===0;
-  updateToolbarSel();
-}
-
-function copyForNS(){
-  var rows=log.filter(function(r){return selected[r.id];});
-  if(!rows.length){toast('No rows selected','r');return;}
-  var sns=rows.map(function(r){return r.b200||r.sc||'';}).filter(Boolean);
-  navigator.clipboard.writeText(sns.join('\n'))
-    .then(function(){toast(sns.length+' serials copied — paste into NS serial popup','g');})
-    .catch(function(){toast('Copy failed','r');});
-}
-
-function toggleNSIM(id){
-  var r=log.find(function(r){return r.id==id;});
-  if(r){r.nsim=!r.nsim;saveLog();renderTable();}
-}
-
-function updateStats(){
-  var total=log.length;
-  var matched=log.filter(function(r){return r.matched===true;}).length;
-  var b200=log.filter(function(r){return r.b200;}).length;
-  var sc=log.filter(function(r){return r.sc;}).length;
-  document.getElementById('stat-total').textContent=total;
-  document.getElementById('stat-matched').textContent=matched;
-  document.getElementById('stat-b200').textContent=b200;
-  document.getElementById('stat-sc').textContent=sc;
-}
-
-function exportJSON(){
-  if(!log.length){toast('No data to export','r');return;}
-  var ds=new Date().toISOString().slice(0,10).replace(/-/g,'');
-  var blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),version:'1.0',entries:log},null,2)],{type:'application/json'});
-  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='SKY01_log_'+ds+'.json';a.click();
-  toast('Exported','g');
-}
-
-function clearAll(){
-  if(!log.length){toast('Nothing to clear','r');return;}
-  if(!confirm('Clear all '+log.length+' entries and reset?'))return;
-  log=[];selected={};knownFiles={};
-  localStorage.removeItem('rcv_laptop_log');
-  localStorage.removeItem('rcv_known_files');
-  renderTable();updateStats();updateSelInfo();
-  toast('Cleared','g');
-}
-
-function saveLog(){localStorage.setItem('rcv_laptop_log',JSON.stringify(log));}
-function setSyncStatus(state,msg){
-  var dot=document.getElementById('sync-dot');
-  var label=document.getElementById('sync-label');
-  dot.className='sync-dot'+(state?' '+state:'');
-  label.textContent=msg;
-}
-
-function toast(msg,type){
-  var t=document.getElementById('toast');
-  t.textContent=msg;t.className='toast '+(type||'')+' show';
-  clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},2800);
-}
+function dlBlob(blob,name){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);}
+function showSt(id,type,msg){var el=document.getElementById(id);el.className='st show '+type;el.textContent=(type==='ok'?'✓ ':'✗ ')+msg;}
+function toast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'')+' show';clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},2600);}
 </script>
 </body>
 </html>
