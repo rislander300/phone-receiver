@@ -287,7 +287,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 
 <script>
 var scanned=[],expected=[],dmgPhotos=[];
-var SCRIPT_URL='https://script.google.com/macros/s/AKfycbzpjYyykF5QYtOt3TNPmzzLGiOkzE9Us6Pd-Ez7QxAEFJKQvSGOsCPML1MoG8hC1KVWcg/exec';
+var SCRIPT_URL='https://script.google.com/macros/s/AKfycbz_IlJh_Khwr6favwWwvxpC2WKTBPv3Y8ackbBoQPn5rrmUu8vTlWIb69wt_S5C_19cGw/exec';
 
 window.onload=function(){
   var folder=localStorage.getItem('rcv_folder');
@@ -339,9 +339,9 @@ function doBOL(){
   var pi=j.indexOf('RCVVAULT_PKG:');if(pi>-1)j=j.slice(0,pi).trim();
   try{
     var p=JSON.parse(j);
-    if(p.date)document.getElementById('f-date').value=p.date;
+    // Date stays as today — not pulled from BOL
     if(p.carrier){var sel=document.getElementById('f-carrier');var up=p.carrier.toUpperCase();for(var i=0;i<sel.options.length;i++){if(up.indexOf(sel.options[i].value)>=0){sel.value=sel.options[i].value;break;}}}
-    if(p.truck)document.getElementById('f-truck').value=p.truck;
+    // Truck # stays blank for manual entry
     if(p.seal)document.getElementById('f-seal').value=p.seal;
     if(p.bol)document.getElementById('f-bol').value=p.bol;
     if(p.po)document.getElementById('f-po').value=p.po;
