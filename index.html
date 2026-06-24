@@ -10,16 +10,32 @@
 :root{--bg:#0a0d14;--surf:#111520;--card:#181e2d;--border:#222d45;--accent:#3b82f6;--aglow:rgba(59,130,246,.15);--green:#22c55e;--gdim:rgba(34,197,94,.12);--gbright:rgba(34,197,94,.22);--yellow:#f59e0b;--red:#ef4444;--rdim:rgba(239,68,68,.12);--purple:#a78bfa;--text:#e2e8f0;--muted:#475569;--label:#7c8db0;--r:12px;--sb:env(safe-area-inset-bottom,0px);--st:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,sans-serif;font-size:14px;overflow:hidden}
-.scr{position:fixed;inset:0;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:1;bottom:calc(44px + var(--sb))}
-.scr.active{transform:translateX(0)}
-#s-setup{bottom:0}
-.nav{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;padding-top:calc(11px + var(--st));background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0;gap:8px}
+
+/* LAYOUT */
+.app{position:fixed;inset:0;display:flex;flex-direction:column}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;padding-top:calc(11px + var(--st));background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0}
 .nav-title{font-size:16px;font-weight:700;letter-spacing:-.3px}
 .nav-title em{color:var(--accent);font-style:normal}
-.nav-right{display:flex;gap:6px}
-.nbtn{background:var(--card);border:1px solid var(--border);color:var(--label);font-size:12px;font-weight:600;padding:6px 12px;border-radius:20px;cursor:pointer;white-space:nowrap}
-.nbtn.hi{background:var(--accent);border-color:var(--accent);color:#fff}
-.body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:13px;display:flex;flex-direction:column;gap:10px;padding-bottom:calc(80px + var(--sb))}
+.nav-badge{font-size:11px;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:3px 10px;border-radius:20px}
+.nav-badge.done{border-color:var(--green);color:var(--green)}
+
+/* TABS */
+.tabs{display:flex;background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{flex:1;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:var(--muted);font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border:none;background:none;border-bottom:2px solid transparent;transition:all .15s}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.tab.done{color:var(--green)}
+.tab.on.done{color:var(--green);border-bottom-color:var(--green)}
+.tab-icon{font-size:18px}
+
+/* PANES */
+.pane{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;display:none;flex-direction:column;gap:10px;padding-bottom:calc(14px + var(--sb))}
+.pane.active{display:flex}
+
+/* SCAN PANE — special full screen */
+#pane-scan{padding:0;background:var(--bg)}
+.scan-full{flex:1;display:flex;flex-direction:column;padding:16px;gap:12px}
+
+/* CARDS */
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r)}
 .ch{padding:11px 14px 0;display:flex;align-items:center;justify-content:space-between}
 .cl{font-size:10px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted)}
@@ -32,52 +48,63 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .paste-row{display:flex;gap:6px}
 .paste-row input{flex:1;font-size:13px;padding:9px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surf);color:var(--text);outline:none}
-.paste-row button{padding:9px 14px;border-radius:8px;border:1px solid var(--border);background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.paste-row button{padding:9px 16px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer}
 .info{font-size:11px;color:var(--label);line-height:1.6;background:var(--surf);border-radius:8px;padding:8px 10px}
 .info strong{color:var(--text)}
 .st{font-size:12px;padding:8px 10px;border-radius:8px;display:none}
 .st.show{display:block}
 .st.ok{background:var(--gdim);color:var(--green)}
 .st.err{background:var(--rdim);color:var(--red)}
-.prog{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+
+/* SCAN INPUT — big and prominent */
+.scan-input-card{background:var(--card);border:2px solid var(--accent);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:8px}
+.scan-input-card.focused{border-color:var(--green);box-shadow:0 0 0 3px var(--gdim)}
+.scan-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:6px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pu 1.2s infinite;flex-shrink:0}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
+.scan-inp{width:100%;background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:14px 12px;font-size:18px;font-family:'Courier New',monospace;color:var(--text);outline:none;transition:border-color .15s}
+.scan-inp:focus{border-color:var(--green);background:var(--gbright)}
+.scan-fb{font-size:13px;font-weight:600;min-height:20px;padding:0 2px}
+.scan-fb.ok{color:var(--green)}
+.scan-fb.w{color:var(--red)}
+.scan-fb.i{color:var(--yellow)}
+
+/* PROGRESS */
+.prog{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
 .prog.pend{border-color:var(--yellow)}
 .prog.done{border-color:var(--green);background:var(--gdim)}
 .prog-top{display:flex;justify-content:space-between;align-items:baseline}
-.prog-big{font-size:20px;font-weight:700}
+.prog-big{font-size:24px;font-weight:800}
 .prog-sub{font-size:11px;color:var(--muted)}
-.prog-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
-.prog-fill{height:100%;border-radius:2px;transition:width .3s;background:var(--green)}
+.prog-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .3s;background:var(--green)}
 .prog-fill.y{background:var(--yellow)}
-.scan-wrap{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:11px}
-.scan-lbl{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:5px}
-.ldot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);animation:pu 1.2s infinite;flex-shrink:0}
-@keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
-.sinp{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 11px;font-size:16px;font-family:'Courier New',monospace;color:var(--text);outline:none;transition:border-color .15s,background .15s}
-.sinp:focus{border-color:var(--accent)}
-.sinp.m{border-color:var(--green);background:var(--gbright)}
-.sinp.n{border-color:var(--red);background:var(--rdim)}
-.sfb{font-size:11px;margin-top:5px;min-height:16px;color:var(--muted)}
-.sfb.ok{color:var(--green)}
-.sfb.w{color:var(--red)}
-.sfb.i{color:var(--yellow)}
-.slist{display:flex;flex-direction:column;gap:4px;max-height:320px;overflow-y:auto}
-.si{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:7px;background:var(--surf);border:1px solid var(--border);font-size:11px;transition:all .2s}
+
+/* SCAN LIST */
+.slist{display:flex;flex-direction:column;gap:4px;max-height:240px;overflow-y:auto}
+.si{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:8px;background:var(--surf);border:1px solid var(--border);transition:all .2s}
 .si.ma{background:var(--gbright);border-color:var(--green)}
 .si.un{background:var(--rdim);border-color:var(--red)}
-.sdot{width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0}
 .si.ma .sdot{background:var(--green)}
 .si.un .sdot{background:var(--red)}
-.styp{font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:var(--card);color:var(--muted);flex-shrink:0;text-transform:uppercase}
+.styp{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--card);color:var(--muted);flex-shrink:0;text-transform:uppercase}
 .si.ma .styp{background:var(--green);color:#000}
 .si.un .styp{background:var(--red);color:#fff}
-.ssn{flex:1;font-family:'Courier New',monospace;color:var(--text)}
-.sticky-save{position:fixed;bottom:calc(44px + var(--sb));left:0;right:0;padding:10px 14px;background:var(--bg);border-top:1px solid var(--border);z-index:4}
-.bbtn{width:100%;padding:13px;border-radius:var(--r);font-size:15px;font-weight:700;cursor:pointer;border:none;transition:opacity .15s}
+.ssn{flex:1;font-family:'Courier New',monospace;font-size:12px;color:var(--text)}
+.del-scan{background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:2px 6px}
+.del-scan:active{color:var(--red)}
+.clear-scans{width:100%;margin-top:4px;padding:8px;background:transparent;border:1px solid var(--red);border-radius:8px;color:var(--red);font-size:12px;font-weight:600;cursor:pointer}
+
+/* BUTTONS */
+.bbtn{width:100%;padding:14px;border-radius:var(--r);font-size:15px;font-weight:700;cursor:pointer;border:none;transition:opacity .15s}
 .bbtn:active{opacity:.8}
 .bbtn.gr{background:var(--green);color:#000}
 .bbtn.bl{background:var(--accent);color:#fff}
 .bbtn.re{background:transparent;border:1px solid var(--red);color:var(--red)}
 .bbtn:disabled{background:var(--border);color:var(--muted);cursor:default;opacity:1}
+
+/* MODAL */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10;display:flex;align-items:flex-end;justify-content:center}
 .modal-bg.hide{display:none}
 .modal{background:var(--surf);border:1px solid var(--border);border-radius:16px 16px 0 0;padding:20px 16px calc(20px + var(--sb));width:100%;max-width:500px;display:flex;flex-direction:column;gap:10px}
@@ -90,65 +117,41 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 .modal-btns button{flex:1;padding:11px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:none}
 .btn-dl{background:var(--accent);color:#fff}
 .btn-done{background:var(--card);border:1px solid var(--border);color:var(--text)}
-.tabs{position:fixed;bottom:0;left:0;right:0;display:none;background:var(--surf);border-top:1px solid var(--border);padding-bottom:max(0px,var(--sb));z-index:5}
-.tabs-inner{display:flex}
-.tab{flex:1;padding:8px 4px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:var(--muted);font-size:9px;font-weight:700;text-transform:uppercase;border:none;background:none}
-.tab.on{color:var(--accent)}
-.tab .ti{font-size:19px}
-.setup-hero{text-align:center;padding:24px 16px 6px}
-.setup-hero h1{font-size:26px;font-weight:800;letter-spacing:-1px}
-.setup-hero h1 em{color:var(--accent);font-style:normal}
-.setup-hero p{color:var(--muted);font-size:12px;margin-top:4px}
-.toast{position:fixed;bottom:calc(60px + var(--sb));left:50%;transform:translateX(-50%) translateY(12px);background:var(--surf);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:20px;font-size:12px;font-weight:600;opacity:0;transition:all .22s;pointer-events:none;white-space:nowrap;z-index:20}
+
+.toast{position:fixed;bottom:calc(16px + var(--sb));left:50%;transform:translateX(-50%) translateY(12px);background:var(--surf);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:20px;font-size:12px;font-weight:600;opacity:0;transition:all .22s;pointer-events:none;white-space:nowrap;z-index:20}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.g{border-color:var(--green);color:var(--green)}
 .toast.r{border-color:var(--red);color:var(--red)}
 .toast.y{border-color:var(--yellow);color:var(--yellow)}
-.ver{text-align:center;font-size:10px;color:var(--muted);padding:8px}
+.ver{text-align:center;font-size:10px;color:var(--muted);padding:4px}
 </style>
 </head>
 <body>
+<div class="app">
 
-<!-- SETUP -->
-<div class="scr active" id="s-setup">
-  <div class="nav"><div class="nav-title">SKY01 <em>Receiving</em></div></div>
-  <div class="body">
-    <div class="setup-hero">
-      <h1>Receiving <em>Vault</em></h1>
-      <p>Phone app v1.0 — dock scanning</p>
-    </div>
-    <div class="card">
-      <div class="ch"><span class="cl">Drive Folder ID</span></div>
-      <div class="cb">
-        <div class="fld">
-          <label>Paste your SKY01_Receiving folder ID</label>
-          <input type="text" id="setup-folder" value="1YYQ4_RtGRGkTChOHmLq_FbfC980uRwNe" autocorrect="off" autocapitalize="off" spellcheck="false">
-        </div>
-        <div class="info">JSON files save to your iPhone Downloads. Open Files app &rarr; share to this Drive folder after each truck.</div>
-        <button class="bbtn bl" onclick="doSetup()">Start</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- SCAN -->
-<div class="scr" id="s-scan">
   <div class="nav">
     <div class="nav-title">&#128230; <em>Receiving</em></div>
-    <div class="nav-right">
-      <button class="nbtn" onclick="goSettings()">&#9881;</button>
-    </div>
+    <div class="nav-badge" id="scan-badge">0 scanned</div>
   </div>
-  <div class="body">
 
-    <!-- BOL -->
+  <div class="tabs">
+    <button class="tab on" id="tab-bol" onclick="goTab('bol')">
+      <span class="tab-icon">&#128203;</span>BOL
+    </button>
+    <button class="tab" id="tab-scan" onclick="goTab('scan')">
+      <span class="tab-icon">&#128247;</span>Scan
+    </button>
+    <button class="tab" id="tab-pkg" onclick="goTab('pkg')">
+      <span class="tab-icon">&#128196;</span>Packing
+    </button>
+  </div>
+
+  <!-- BOL TAB -->
+  <div class="pane active" id="pane-bol">
     <div class="card">
-      <div class="ch">
-        <span class="cl">BOL — from driver</span>
-        <span id="bol-badge" style="font-size:10px;color:var(--green);display:none">&#10003; Done</span>
-      </div>
+      <div class="ch"><span class="cl">BOL — from driver</span><span id="bol-badge" style="font-size:10px;color:var(--green);display:none">&#10003; Done</span></div>
       <div class="cb">
-        <div class="info"><strong>1.</strong> DM BOL photo to yourself in Slack &nbsp;<strong>2.</strong> Say "read my BOL" in Claude chat &nbsp;<strong>3.</strong> Paste code below</div>
+        <div class="info"><strong>1.</strong> DM BOL photo to yourself in Slack &nbsp;<strong>2.</strong> Say "get BOL" in Claude &nbsp;<strong>3.</strong> Paste code below</div>
         <div class="paste-row">
           <input type="text" id="bol-inp" placeholder="Paste RCVVAULT: code..." autocorrect="off" autocapitalize="off" spellcheck="false">
           <button onclick="doBOL()">Fill</button>
@@ -164,50 +167,59 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
           </div>
         </div>
         <div class="row2">
-          <div class="fld"><label>Truck #</label><input type="text" id="f-truck" placeholder="7" autocorrect="off" spellcheck="false"></div>
-          <div class="fld"><label>Seal #</label><input type="text" id="f-seal" placeholder="UL-5694842" autocorrect="off" spellcheck="false"></div>
+          <div class="fld"><label>Truck #</label><input type="text" id="f-truck" placeholder="1" autocorrect="off" spellcheck="false" inputmode="numeric"></div>
+          <div class="fld"><label>Seal #</label><input type="text" id="f-seal" placeholder="UL-5694836" autocorrect="off" spellcheck="false"></div>
         </div>
         <div class="row2">
-          <div class="fld"><label>BOL / Tracking #</label><input type="text" id="f-bol" placeholder="25710833" autocorrect="off" spellcheck="false"></div>
-          <div class="fld"><label>PO / TO #</label><input type="text" id="f-po" placeholder="PO7992" autocorrect="off" spellcheck="false"></div>
+          <div class="fld"><label>BOL / Tracking</label><input type="text" id="f-bol" placeholder="25713521" autocorrect="off" spellcheck="false"></div>
+          <div class="fld"><label>PO / TO #</label><input type="text" id="f-po" placeholder="PO7993" autocorrect="off" spellcheck="false"></div>
         </div>
+        <button class="bbtn bl" onclick="goTab('scan')" style="margin-top:4px">Next: Scan Racks &#8594;</button>
       </div>
     </div>
+    <div class="ver">SKY01 Receiving v1.0</div>
+  </div>
 
-    <!-- SCAN -->
-    <div class="card">
-      <div class="ch">
-        <span class="cl">Scan racks</span>
-        <span style="font-size:11px;color:var(--muted)" id="scan-ct">0 scanned</span>
+  <!-- SCAN TAB -->
+  <div class="pane" id="pane-scan">
+    <div class="scan-full">
+
+      <!-- Progress -->
+      <div class="prog pend" id="prog">
+        <div class="prog-top">
+          <div class="prog-big" id="prog-big" style="color:var(--yellow)">0 scanned</div>
+          <div class="prog-sub" id="prog-sub">Scan racks — paste packing list after</div>
+        </div>
+        <div class="prog-bar"><div class="prog-fill y" id="prog-fill" style="width:0%"></div></div>
       </div>
-      <div class="cb">
-        <div class="prog pend" id="prog">
-          <div class="prog-top">
-            <div class="prog-big" id="prog-big" style="color:var(--yellow)">0 scanned</div>
-            <div class="prog-sub" id="prog-sub">Paste packing list code after</div>
-          </div>
-          <div class="prog-bar"><div class="prog-fill y" id="prog-fill" style="width:0%"></div></div>
-        </div>
-        <div class="scan-wrap">
-          <div class="scan-lbl"><span class="ldot"></span>Ready to scan</div>
-          <input class="sinp" id="scan-inp" placeholder="Scan serial number..." autocorrect="off" autocapitalize="characters" spellcheck="false" onkeydown="onKey(event)" oninput="onLive(this)">
-          <div class="sfb" id="sfb"></div>
-        </div>
-        <div id="slist-wrap" style="display:none">
-          <div style="font-size:11px;color:var(--label);margin-bottom:4px">Scanned</div>
-          <div class="slist" id="slist"></div>
-        </div>
+
+      <!-- Scan input — big and focused -->
+      <div class="scan-input-card" id="scan-card">
+        <div class="scan-label"><span class="live-dot"></span>Ready to scan</div>
+        <input class="scan-inp" id="scan-inp" placeholder="Scan serial number..." autocorrect="off" autocapitalize="characters" spellcheck="false" onkeydown="onKey(event)" oninput="onLive(this)" onfocus="onScanFocus()" onblur="onScanBlur()">
+        <div class="scan-fb" id="scan-fb"></div>
       </div>
+
+      <!-- Scanned list -->
+      <div id="slist-wrap" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <span style="font-size:11px;color:var(--label)">Scanned serials</span>
+          <button class="clear-scans" style="width:auto;padding:4px 10px;margin:0" onclick="clearScans()">Clear all</button>
+        </div>
+        <div class="slist" id="slist"></div>
+      </div>
+
+      <button class="bbtn gr" id="sub-btn" onclick="goTab('pkg')" disabled>Next: Packing List &#8594;</button>
+
     </div>
+  </div>
 
-    <!-- PACKING LIST -->
+  <!-- PACKING LIST TAB -->
+  <div class="pane" id="pane-pkg">
     <div class="card">
-      <div class="ch">
-        <span class="cl">Packing list — last crate</span>
-        <span id="pkg-badge" style="font-size:10px;color:var(--green);display:none">&#10003; Matched</span>
-      </div>
+      <div class="ch"><span class="cl">Packing list — last crate</span><span id="pkg-badge" style="font-size:10px;color:var(--green);display:none">&#10003; Matched</span></div>
       <div class="cb">
-        <div class="info"><strong>1.</strong> DM packing list photo in Slack &nbsp;<strong>2.</strong> Say "read my packing list" in Claude &nbsp;<strong>3.</strong> Paste code below</div>
+        <div class="info"><strong>1.</strong> DM packing list photo in Slack &nbsp;<strong>2.</strong> Say "get packing" in Claude &nbsp;<strong>3.</strong> Paste code below</div>
         <div class="paste-row">
           <input type="text" id="pkg-inp" placeholder="Paste RCVVAULT_PKG: code..." autocorrect="off" autocapitalize="off" spellcheck="false">
           <button onclick="doPKG()">Match</button>
@@ -216,7 +228,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
       </div>
     </div>
 
-    <!-- DAMAGE -->
+    <!-- Damage photos -->
     <div class="card">
       <div class="ch"><span class="cl">Damage photos — optional</span></div>
       <div class="cb">
@@ -228,53 +240,19 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
       </div>
     </div>
 
-    <div class="ver">SKY01 Receiving Vault v1.0 — Phone</div>
-
+    <button class="bbtn gr" id="save-btn" onclick="openModal()" disabled>Save &amp; Export</button>
+    <div class="ver">SKY01 Receiving v1.0</div>
   </div>
 
-  <div class="sticky-save">
-    <button class="bbtn gr" id="sub-btn" onclick="openModal()" disabled>Save &amp; Export to Files</button>
-  </div>
-</div>
-
-<!-- SETTINGS -->
-<div class="scr" id="s-settings">
-  <div class="nav">
-    <div class="nav-title"><em>Settings</em></div>
-    <div class="nav-right"><button class="nbtn" onclick="goScan()">&#8592; Back</button></div>
-  </div>
-  <div class="body">
-    <div class="card">
-      <div class="ch"><span class="cl">Drive Folder ID</span></div>
-      <div class="cb">
-        <div class="fld">
-          <label>SKY01_Receiving folder ID</label>
-          <input type="text" id="cfg-folder" autocorrect="off" autocapitalize="off" spellcheck="false">
-        </div>
-        <button class="bbtn bl" onclick="saveSettings()">Save</button>
-      </div>
-    </div>
-    <div class="card" style="margin-top:10px">
-      <div class="ch"><span class="cl">Workflow</span></div>
-      <div class="cb">
-        <div class="info" style="line-height:1.8">
-          <strong>BOL:</strong> Slack DM photo &rarr; "read my BOL" in Claude &rarr; paste RCVVAULT: code<br>
-          <strong>Packing list:</strong> Slack DM photo &rarr; "read my packing list" &rarr; paste RCVVAULT_PKG: code<br>
-          <strong>Save:</strong> Downloads folder &rarr; Files app &rarr; Share &rarr; Save to Drive &rarr; SKY01_Receiving folder<br>
-          <strong>Laptop:</strong> Laptop app polls Drive and picks up JSON automatically
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- MODAL -->
 <div class="modal-bg hide" id="modal">
   <div class="modal">
     <h3>Save &amp; Export</h3>
-    <div class="mstep"><div class="mnum">1</div><p>Tap <strong>Save to Drive</strong> &mdash; sends directly to Sky01 Receiving folder.</p></div>
-    <div class="mstep"><div class="mnum">2</div><p>Laptop picks it up <strong>automatically within 5 seconds</strong>.</p></div>
-    <div class="mstep"><div class="mnum">3</div><p>Status bar shows <strong>Saved to Drive</strong> when complete.</p></div>
+    <div class="mstep"><div class="mnum">1</div><p>Tap <strong>Download JSON</strong> &mdash; iOS share sheet opens.</p></div>
+    <div class="mstep"><div class="mnum">2</div><p>Tap <strong>Google Drive</strong> &rarr; navigate to <strong>SKY01_Receiving</strong> folder &rarr; Save.</p></div>
+    <div class="mstep"><div class="mnum">3</div><p>Laptop picks it up automatically via Drive sync.</p></div>
     <div class="modal-btns">
       <button class="btn-dl" onclick="doSave()">Download JSON</button>
       <button class="btn-done" onclick="closeModal()">Done</button>
@@ -282,74 +260,70 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   </div>
 </div>
 
-<div class="tabs" id="tabs" style="display:none"></div>
 <div class="toast" id="toast"></div>
 
 <script>
 var scanned=[],expected=[],dmgPhotos=[];
 var bolSlackUrl='',pkgSlackUrl='';
 var SCRIPT_URL='https://script.google.com/macros/s/AKfycbz_IlJh_Khwr6favwWwvxpC2WKTBPv3Y8ackbBoQPn5rrmUu8vTlWIb69wt_S5C_19cGw/exec';
+var focusTimer=null;
 
-window.onload=function(){
-  var folder=localStorage.getItem('rcv_folder');
-  if(folder){
-    document.getElementById('cfg-folder').value=folder;
-    startApp();
-  } else {
-    show('s-setup');
-  }
-  setToday();
-};
+window.onload=function(){setToday();};
 
-function setToday(){var t=new Date();var el=document.getElementById('f-date');if(el&&!el.value)el.value=t.getFullYear()+'-'+p2(t.getMonth()+1)+'-'+p2(t.getDate());}
 function p2(n){return n<10?'0'+n:''+n;}
+function setToday(){var t=new Date();var el=document.getElementById('f-date');if(el&&!el.value)el.value=t.getFullYear()+'-'+p2(t.getMonth()+1)+'-'+p2(t.getDate());}
 
-function doSetup(){
-  var folder=document.getElementById('setup-folder').value.trim();
-  if(!folder){toast('Enter folder ID','r');return;}
-  localStorage.setItem('rcv_folder',folder);
-  startApp();
+function goTab(t){
+  ['bol','scan','pkg'].forEach(function(x){
+    document.getElementById('pane-'+x).classList.remove('active');
+    document.getElementById('tab-'+x).classList.remove('on');
+  });
+  document.getElementById('pane-'+t).classList.add('active');
+  document.getElementById('tab-'+t).classList.add('on');
+  if(t==='scan'){
+    setTimeout(function(){
+      var inp=document.getElementById('scan-inp');
+      if(inp)inp.focus();
+    },150);
+  }
 }
 
-function startApp(){
-  show('s-scan');
+// Auto-refocus scan input when on scan tab
+function onScanFocus(){
+  document.getElementById('scan-card').classList.add('focused');
+  if(focusTimer){clearTimeout(focusTimer);focusTimer=null;}
 }
-
-function show(id){
-  ['s-setup','s-scan','s-settings'].forEach(function(s){document.getElementById(s).classList.remove('active');});
-  document.getElementById(id).classList.add('active');
-}
-function goScan(){show('s-scan');}
-function goSettings(){
-  document.getElementById('cfg-folder').value=localStorage.getItem('rcv_folder')||'';
-  show('s-settings');
-}
-function saveSettings(){
-  var folder=document.getElementById('cfg-folder').value.trim();
-  if(folder)localStorage.setItem('rcv_folder',folder);
-  toast('Saved','g');
-  goScan();
+function onScanBlur(){
+  document.getElementById('scan-card').classList.remove('focused');
+  // Only refocus if still on scan tab
+  focusTimer=setTimeout(function(){
+    var pane=document.getElementById('pane-scan');
+    if(pane.classList.contains('active')){
+      document.getElementById('scan-inp').focus();
+    }
+  },300);
 }
 
 function doBOL(){
   var raw=document.getElementById('bol-inp').value.trim();
   if(!raw){showSt('bol-st','err','Paste a RCVVAULT: code first');return;}
   var idx=raw.indexOf('RCVVAULT:');
-  if(idx===-1){showSt('bol-st','err','Not a valid RCVVAULT code');return;}
+  if(idx===-1){showSt('bol-st','err','Not a valid RCVVAULT: code');return;}
   var j=raw.slice(idx+9).trim();
   var pi=j.indexOf('RCVVAULT_PKG:');if(pi>-1)j=j.slice(0,pi).trim();
   try{
     var p=JSON.parse(j);
-    // Date stays as today — not pulled from BOL
+    // Don't overwrite date — keep today
     if(p.carrier){var sel=document.getElementById('f-carrier');var up=p.carrier.toUpperCase();for(var i=0;i<sel.options.length;i++){if(up.indexOf(sel.options[i].value)>=0){sel.value=sel.options[i].value;break;}}}
-    // Truck # stays blank for manual entry
+    // Don't overwrite truck — manual entry
     if(p.seal)document.getElementById('f-seal').value=p.seal;
     if(p.bol)document.getElementById('f-bol').value=p.bol;
     if(p.po)document.getElementById('f-po').value=p.po;
     bolSlackUrl=p.slackUrl||'';
     document.getElementById('bol-inp').value='';
     document.getElementById('bol-badge').style.display='inline';
-    showSt('bol-st','ok','BOL filled — verify above');
+    document.getElementById('tab-bol').classList.add('done');
+    showSt('bol-st','ok','BOL filled — verify above, then enter Truck #');
     toast('BOL filled','g');
   }catch(e){showSt('bol-st','err','Invalid code — copy again');}
 }
@@ -358,11 +332,12 @@ function doPKG(){
   var raw=document.getElementById('pkg-inp').value.trim();
   if(!raw){showSt('pkg-st','err','Paste a RCVVAULT_PKG: code first');return;}
   var idx=raw.indexOf('RCVVAULT_PKG:');
-  if(idx===-1){showSt('pkg-st','err','Not a valid RCVVAULT_PKG code');return;}
+  if(idx===-1){showSt('pkg-st','err','Not a valid RCVVAULT_PKG: code');return;}
   var j=raw.slice(idx+13).trim();
   try{
     var p=JSON.parse(j);
     if(p.po)document.getElementById('f-po').value=p.po;
+    pkgSlackUrl=p.slackUrl||'';
     if(p.serials&&p.serials.length){
       expected=p.serials.map(function(s){return{sn:s.sn.trim().toUpperCase(),type:s.type||'B200'};});
       scanned.forEach(function(sc){
@@ -372,9 +347,10 @@ function doPKG(){
       renderScanned();updateProg();
       var m=scanned.filter(function(s){return s.matched;}).length;
       showSt('pkg-st','ok',m+'/'+expected.length+' matched'+(m<expected.length?' — '+(expected.length-m)+' not yet scanned':''));
-      pkgSlackUrl=p.slackUrl||'';
       document.getElementById('pkg-badge').style.display='inline';
+      document.getElementById('tab-pkg').classList.add('done');
       document.getElementById('pkg-inp').value='';
+      document.getElementById('save-btn').disabled=false;
       toast('Packing list matched','g');
     }else{showSt('pkg-st','err','No serials in code');}
   }catch(e){showSt('pkg-st','err','Invalid code — copy again');}
@@ -387,7 +363,7 @@ function addDMG(input){
   var strip=document.getElementById('dmg-strip');
   strip.style.display='flex';strip.innerHTML='';
   dmgPhotos.forEach(function(p){strip.innerHTML+='<div style="width:54px;height:54px;border-radius:7px;overflow:hidden;flex-shrink:0;border:1px solid var(--border)"><img src="'+p.url+'" style="width:100%;height:100%;object-fit:cover"></div>';});
-  document.getElementById('dmg-lbl').textContent=dmgPhotos.length+' damage photo(s) — add more';
+  document.getElementById('dmg-lbl').textContent=dmgPhotos.length+' damage photo(s)';
   input.value='';
 }
 
@@ -396,20 +372,20 @@ function onKey(e){
     e.preventDefault();
     var v=e.target.value.trim().toUpperCase();if(!v)return;
     doScan(v);
-    e.target.value='';e.target.className='sinp';
-    document.getElementById('sfb').textContent='';document.getElementById('sfb').className='sfb';
+    e.target.value='';e.target.className='scan-inp';
+    document.getElementById('scan-fb').textContent='';document.getElementById('scan-fb').className='scan-fb';
   }
 }
 
 function onLive(inp){
-  var v=inp.value.trim().toUpperCase(),fb=document.getElementById('sfb');
-  if(!v){inp.className='sinp';fb.textContent='';fb.className='sfb';return;}
-  if(scanned.find(function(s){return s.sn===v;})){inp.className='sinp n';fb.className='sfb w';fb.textContent='Already scanned';return;}
+  var v=inp.value.trim().toUpperCase(),fb=document.getElementById('scan-fb');
+  if(!v){inp.className='scan-inp';fb.textContent='';fb.className='scan-fb';return;}
+  if(scanned.find(function(s){return s.sn===v;})){inp.className='scan-inp';fb.className='scan-fb w';fb.textContent='Already scanned';return;}
   if(expected.length){
     var f=expected.find(function(e){return e.sn===v;});
-    if(f){inp.className='sinp m';fb.className='sfb ok';fb.textContent='On packing list — '+f.type;}
-    else if(v.length>=6){inp.className='sinp n';fb.className='sfb w';fb.textContent='Not on packing list';}
-  }else if(v.length>=6){inp.className='sinp';fb.className='sfb i';fb.textContent='Paste packing list after scanning';}
+    if(f){inp.className='scan-inp';fb.className='scan-fb ok';fb.textContent='On packing list — '+f.type;}
+    else if(v.length>=6){inp.className='scan-inp';fb.className='scan-fb w';fb.textContent='Not on packing list';}
+  }else if(v.length>=6){inp.className='scan-inp';fb.className='scan-fb i';fb.textContent='Paste packing list after scanning';}
 }
 
 function doScan(sn){
@@ -423,25 +399,8 @@ function doScan(sn){
   scanned.push({sn:sn,type:type,matched:matched});
   renderScanned();updateProg();
   document.getElementById('sub-btn').disabled=false;
-  if(expected.length){if(matched)toast(type+': ...'+sn.slice(-6),'g');else toast('Not on list: ...'+sn.slice(-6),'y');}
+  if(expected.length){if(matched)toast(type+': ...'+sn.slice(-6),'g');else toast('Not on list','y');}
   else toast('Scanned: ...'+sn.slice(-6),'g');
-}
-
-function renderScanned(){
-  var w=document.getElementById('slist-wrap'),l=document.getElementById('slist');
-  if(!scanned.length){w.style.display='none';return;}
-  w.style.display='block';
-  var h='';
-  for(var i=scanned.length-1;i>=0;i--){
-    var s=scanned[i];
-    var cls=s.matched===true?'ma':s.matched===false?'un':'';
-    var icon=s.matched===true?'&#10003;':s.matched===false?'&#10005;':'&middot;';
-    h+='<div class="si '+cls+'"><div class="sdot"></div><span class="styp">'+(s.type==='UNKNOWN'?'?':s.type)+'</span><span class="ssn">'+s.sn+'</span><span style="font-size:11px">'+icon+'</span><button onclick="deleteScan('+i+')" style="background:none;border:none;color:var(--muted);font-size:13px;padding:2px 6px;cursor:pointer;margin-left:4px">&#10005;</button></div>';
-  }
-  // Add clear all button
-  h+='<button onclick="clearScans()" style="width:100%;margin-top:6px;padding:7px;background:transparent;border:1px solid var(--red);border-radius:7px;color:var(--red);font-size:11px;font-weight:600;cursor:pointer">Clear all scans</button>';
-  l.innerHTML=h;
-  document.getElementById('scan-ct').textContent=scanned.length+' scanned';
 }
 
 function deleteScan(i){
@@ -456,8 +415,25 @@ function clearScans(){
   renderScanned();updateProg();
   document.getElementById('sub-btn').disabled=true;
   document.getElementById('pkg-badge').style.display='none';
+  document.getElementById('tab-pkg').classList.remove('done');
   document.getElementById('pkg-st').className='st';
   toast('Scans cleared','g');
+}
+
+function renderScanned(){
+  var w=document.getElementById('slist-wrap'),l=document.getElementById('slist');
+  if(!scanned.length){w.style.display='none';return;}
+  w.style.display='block';
+  var h='';
+  for(var i=scanned.length-1;i>=0;i--){
+    var s=scanned[i];
+    var cls=s.matched===true?'ma':s.matched===false?'un':'';
+    var icon=s.matched===true?'&#10003;':s.matched===false?'&#10005;':'&middot;';
+    h+='<div class="si '+cls+'"><div class="sdot"></div><span class="styp">'+(s.type==='UNKNOWN'?'?':s.type)+'</span><span class="ssn">'+s.sn+'</span><span style="font-size:11px">'+icon+'</span><button class="del-scan" onclick="deleteScan('+i+')">&#10005;</button></div>';
+  }
+  l.innerHTML=h;
+  document.getElementById('scan-badge').textContent=scanned.length+' scanned';
+  document.getElementById('scan-badge').className='nav-badge'+(scanned.length?'':'')+( scanned.length?' done':'');
 }
 
 function updateProg(){
@@ -476,7 +452,9 @@ function updateProg(){
 }
 
 function getH(){
-  return{date:document.getElementById('f-date').value,carrier:document.getElementById('f-carrier').value,po:document.getElementById('f-po').value.trim(),truck:document.getElementById('f-truck').value.trim(),seal:document.getElementById('f-seal').value.trim(),bol:document.getElementById('f-bol').value.trim(),folderId:localStorage.getItem('rcv_folder')||''};
+  return{date:document.getElementById('f-date').value,carrier:document.getElementById('f-carrier').value,
+    po:document.getElementById('f-po').value.trim(),truck:document.getElementById('f-truck').value.trim(),
+    seal:document.getElementById('f-seal').value.trim(),bol:document.getElementById('f-bol').value.trim()};
 }
 
 function buildName(){
@@ -489,19 +467,20 @@ function buildName(){
 }
 
 function openModal(){document.getElementById('modal').classList.remove('hide');}
-function closeModal(){document.getElementById('modal').classList.add('hide');resetScan();}
+function closeModal(){document.getElementById('modal').classList.add('hide');resetForm();}
 
 function doSave(){
   var h=getH();
   var m=scanned.filter(function(s){return s.matched;}).length;
   var session={
-    exportedAt:new Date().toISOString(),
-    version:'1.0',
-    header:h,
-    expected:expected,
-    scanned:scanned,
+    exportedAt:new Date().toISOString(),version:'1.0',header:h,
+    expected:expected,scanned:scanned,
     matchSummary:expected.length?m+'/'+expected.length+' matched':scanned.length+' scanned (no packing list)',
-    rows:scanned.map(function(s){return{date:h.date,carrier:h.carrier,po:h.po,truck:h.truck,seal:h.seal,bol:h.bol,b200:(s.type==='B200'||s.type==='UNKNOWN')?s.sn:'',sc:s.type==='SideCar'?s.sn:'',itemType:s.type,matched:s.matched,nsim:false,bolSlackUrl:bolSlackUrl,pkgSlackUrl:pkgSlackUrl,nsUrl:'',id:Date.now()+Math.random()};})
+    rows:scanned.map(function(s){return{date:h.date,carrier:h.carrier,po:h.po,truck:h.truck,seal:h.seal,bol:h.bol,
+      b200:(s.type==='B200'||s.type==='UNKNOWN')?s.sn:'',sc:s.type==='SideCar'?s.sn:'',
+      itemType:s.type,matched:s.matched,nsim:false,
+      bolSlackUrl:bolSlackUrl,pkgSlackUrl:pkgSlackUrl,nsUrl:'',
+      id:Date.now()+Math.random()};})
   };
   var fname=buildName()+'.json';
   var blob=new Blob([JSON.stringify(session,null,2)],{type:'application/json'});
@@ -510,58 +489,36 @@ function doSave(){
     navigator.share({files:[file],title:fname})
     .then(function(){toast('Shared — save to Drive','g');syncToDrive(session);})
     .catch(function(e){if(e.name!=='AbortError'){dlBlob(blob,fname);}});
-  }else{
-    dlBlob(blob,fname);
-    syncToDrive(session);
-  }
+  }else{dlBlob(blob,fname);syncToDrive(session);}
   dmgPhotos.forEach(function(p,i){setTimeout(function(){dlBlob(p.blob,buildName()+'_DMG_'+(i+1)+'.jpg');},( i+1)*700);});
 }
 
 function syncToDrive(session){
-  setStatus('sy','Saving to Drive...');
-  fetch(SCRIPT_URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(session)
-  })
+  fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(session)})
   .then(function(r){return r.json();})
-  .then(function(d){
-    if(d.success){
-      setStatus('ok','Saved to Drive: '+d.filename);
-      toast('Saved to Drive','g');
-    }else{
-      setStatus('er','Drive error: '+(d.error||'unknown'));
-      toast('Drive save failed','r');
-    }
-  })
-  .catch(function(err){
-    setStatus('er','Network error — check WiFi');
-    toast('Drive save failed','r');
-  });
+  .then(function(d){if(d.success)toast('Synced to Drive','g');else toast('Drive sync failed','r');})
+  .catch(function(){toast('Drive sync failed — saved locally','r');});
 }
 
-function setStatus(state,msg){
-  var dot=document.getElementById('sdot');
-  var label=document.getElementById('slabel');
-  if(dot)dot.className='sdot'+(state==='sy'?' sy':state==='ok'?' ok':state==='er'?' er':'');
-  if(label)label.textContent=msg;
-}
+function dlBlob(blob,name){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);}
 
-function resetScan(){
+function resetForm(){
   scanned=[];expected=[];bolSlackUrl='';pkgSlackUrl='';
   dmgPhotos.forEach(function(p){URL.revokeObjectURL(p.url);});dmgPhotos=[];
   ['f-po','f-truck','f-seal','f-bol'].forEach(function(id){document.getElementById(id).value='';});
   setToday();
-  document.getElementById('scan-inp').value='';document.getElementById('sfb').textContent='';document.getElementById('scan-inp').className='sinp';
+  document.getElementById('scan-inp').value='';document.getElementById('scan-fb').textContent='';
   document.getElementById('slist-wrap').style.display='none';
   document.getElementById('dmg-strip').style.display='none';document.getElementById('dmg-lbl').textContent='Add damage photo';
   document.getElementById('bol-badge').style.display='none';document.getElementById('pkg-badge').style.display='none';
   document.getElementById('bol-st').className='st';document.getElementById('pkg-st').className='st';
-  document.getElementById('scan-ct').textContent='0 scanned';document.getElementById('sub-btn').disabled=true;
+  document.getElementById('scan-badge').textContent='0 scanned';document.getElementById('scan-badge').className='nav-badge';
+  document.getElementById('sub-btn').disabled=true;document.getElementById('save-btn').disabled=true;
+  ['tab-bol','tab-scan','tab-pkg'].forEach(function(id){document.getElementById(id).classList.remove('done');});
   updateProg();
+  goTab('bol');
 }
 
-function dlBlob(blob,name){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);}
 function showSt(id,type,msg){var el=document.getElementById(id);el.className='st show '+type;el.textContent=(type==='ok'?'✓ ':'✗ ')+msg;}
 function toast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'')+' show';clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},2600);}
 </script>
