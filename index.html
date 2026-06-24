@@ -482,10 +482,20 @@ function doSave(){
     matchSummary:expected.length?m+'/'+expected.length+' matched':scanned.length+' scanned (no packing list)',
     rows:scanned.map(function(s){return{date:h.date,carrier:h.carrier,po:h.po,truck:h.truck,seal:h.seal,bol:h.bol,b200:(s.type==='B200'||s.type==='UNKNOWN')?s.sn:'',sc:s.type==='SideCar'?s.sn:'',itemType:s.type,matched:s.matched,nsim:false,id:Date.now()+Math.random()};})
   };
-  // Save locally as backup
   var fname=buildName()+'.json';
-  dlBlob(new Blob([JSON.stringify(session,null,2)],{type:'application/json'}),fname);
-  // Sync to Drive via Apps Script
+  var blob=new Blob([JSON.stringify(session,null,2)],{type:'application/json'});
+  var file=new File([blob],fname,{type:'application/json'});
+  // Use Web Share API on iOS to trigger share sheet
+  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+    navigator.share({files:[file],title:fname})
+    .then(function(){toast('Shared successfully','g');})
+    .catch(function(e){if(e.name!=='AbortError'){dlBlob(blob,fname);}});
+  }else{
+    // Fallback to direct download
+    dlBlob(blob,fname);
+    toast('Saved to Downloads','g');
+  }
+  // Also try Apps Script sync
   syncToDrive(session);
   dmgPhotos.forEach(function(p,i){setTimeout(function(){dlBlob(p.blob,buildName()+'_DMG_'+(i+1)+'.jpg');},( i+1)*700);});
 }
