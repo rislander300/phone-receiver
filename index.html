@@ -60,7 +60,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 .sfb.ok{color:var(--green)}
 .sfb.w{color:var(--red)}
 .sfb.i{color:var(--yellow)}
-.slist{display:flex;flex-direction:column;gap:4px;max-height:160px;overflow-y:auto}
+.slist{display:flex;flex-direction:column;gap:4px;max-height:320px;overflow-y:auto}
 .si{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:7px;background:var(--surf);border:1px solid var(--border);font-size:11px;transition:all .2s}
 .si.ma{background:var(--gbright);border-color:var(--green)}
 .si.un{background:var(--rdim);border-color:var(--red)}
@@ -287,7 +287,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 
 <script>
 var scanned=[],expected=[],dmgPhotos=[];
-var SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNGujK5zlcO_p5oObA608ZwgvKiqi_N1Eo0sualDIQFU1IRJN9NBtrp-NRACiGgFNrqA/exec';
+var SCRIPT_URL='https://script.google.com/macros/s/AKfycbzpjYyykF5QYtOt3TNPmzzLGiOkzE9Us6Pd-Ez7QxAEFJKQvSGOsCPML1MoG8hC1KVWcg/exec';
 
 window.onload=function(){
   var folder=localStorage.getItem('rcv_folder');
@@ -433,10 +433,28 @@ function renderScanned(){
     var s=scanned[i];
     var cls=s.matched===true?'ma':s.matched===false?'un':'';
     var icon=s.matched===true?'&#10003;':s.matched===false?'&#10005;':'&middot;';
-    h+='<div class="si '+cls+'"><div class="sdot"></div><span class="styp">'+(s.type==='UNKNOWN'?'?':s.type)+'</span><span class="ssn">'+s.sn+'</span><span style="font-size:11px">'+icon+'</span></div>';
+    h+='<div class="si '+cls+'"><div class="sdot"></div><span class="styp">'+(s.type==='UNKNOWN'?'?':s.type)+'</span><span class="ssn">'+s.sn+'</span><span style="font-size:11px">'+icon+'</span><button onclick="deleteScan('+i+')" style="background:none;border:none;color:var(--muted);font-size:13px;padding:2px 6px;cursor:pointer;margin-left:4px">&#10005;</button></div>';
   }
+  // Add clear all button
+  h+='<button onclick="clearScans()" style="width:100%;margin-top:6px;padding:7px;background:transparent;border:1px solid var(--red);border-radius:7px;color:var(--red);font-size:11px;font-weight:600;cursor:pointer">Clear all scans</button>';
   l.innerHTML=h;
   document.getElementById('scan-ct').textContent=scanned.length+' scanned';
+}
+
+function deleteScan(i){
+  scanned.splice(i,1);
+  renderScanned();updateProg();
+  if(!scanned.length)document.getElementById('sub-btn').disabled=true;
+}
+
+function clearScans(){
+  if(!confirm('Clear all '+scanned.length+' scanned serials?'))return;
+  scanned=[];expected=[];
+  renderScanned();updateProg();
+  document.getElementById('sub-btn').disabled=true;
+  document.getElementById('pkg-badge').style.display='none';
+  document.getElementById('pkg-st').className='st';
+  toast('Scans cleared','g');
 }
 
 function updateProg(){
