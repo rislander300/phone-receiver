@@ -272,11 +272,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 <div class="modal-bg hide" id="modal">
   <div class="modal">
     <h3>Save &amp; Export</h3>
-    <div class="mstep"><div class="mnum">1</div><p>Tap <strong>Download JSON</strong> &mdash; saves to iPhone Downloads.</p></div>
-    <div class="mstep"><div class="mnum">2</div><p>Open <strong>Files app</strong> &rarr; Downloads &rarr; find the JSON &rarr; tap Share &rarr; <strong>Save to Drive</strong> &rarr; SKY01_Receiving folder.</p></div>
-    <div class="mstep"><div class="mnum">3</div><p>Laptop app picks it up automatically within 5 seconds.</p></div>
+    <div class="mstep"><div class="mnum">1</div><p>Tap <strong>Save to Drive</strong> &mdash; sends directly to Sky01 Receiving folder.</p></div>
+    <div class="mstep"><div class="mnum">2</div><p>Laptop picks it up <strong>automatically within 5 seconds</strong>.</p></div>
+    <div class="mstep"><div class="mnum">3</div><p>Status bar shows <strong>Saved to Drive</strong> when complete.</p></div>
     <div class="modal-btns">
-      <button class="btn-dl" onclick="doSave()">Download JSON</button>
+      <button class="btn-dl" onclick="doSave()">Save to Drive</button>
       <button class="btn-done" onclick="closeModal()">Done</button>
     </div>
   </div>
@@ -287,7 +287,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 
 <script>
 var scanned=[],expected=[],dmgPhotos=[];
-var SCRIPT_URL='https://script.google.com/macros/s/AKfycbzA4lyzfQtx01WW-fX12eX9mgXll2Z4qX__cMI5OAlRZZrE31jkN8Bk1IaQirj1NTDXIw/exec';
+var SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNGujK5zlcO_p5oObA608ZwgvKiqi_N1Eo0sualDIQFU1IRJN9NBtrp-NRACiGgFNrqA/exec';
 
 window.onload=function(){
   var folder=localStorage.getItem('rcv_folder');
@@ -482,26 +482,13 @@ function doSave(){
     matchSummary:expected.length?m+'/'+expected.length+' matched':scanned.length+' scanned (no packing list)',
     rows:scanned.map(function(s){return{date:h.date,carrier:h.carrier,po:h.po,truck:h.truck,seal:h.seal,bol:h.bol,b200:(s.type==='B200'||s.type==='UNKNOWN')?s.sn:'',sc:s.type==='SideCar'?s.sn:'',itemType:s.type,matched:s.matched,nsim:false,id:Date.now()+Math.random()};})
   };
-  var fname=buildName()+'.json';
-  var blob=new Blob([JSON.stringify(session,null,2)],{type:'application/json'});
-  var file=new File([blob],fname,{type:'application/json'});
-  // Use Web Share API on iOS to trigger share sheet
-  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-    navigator.share({files:[file],title:fname})
-    .then(function(){toast('Shared successfully','g');})
-    .catch(function(e){if(e.name!=='AbortError'){dlBlob(blob,fname);}});
-  }else{
-    // Fallback to direct download
-    dlBlob(blob,fname);
-    toast('Saved to Downloads','g');
-  }
-  // Also try Apps Script sync
+  // Post to Apps Script — it saves directly to Drive folder
   syncToDrive(session);
   dmgPhotos.forEach(function(p,i){setTimeout(function(){dlBlob(p.blob,buildName()+'_DMG_'+(i+1)+'.jpg');},( i+1)*700);});
 }
 
 function syncToDrive(session){
-  toast('Syncing to Drive...','g');
+  setStatus('sy','Saving to Drive...');
   fetch(SCRIPT_URL,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -509,10 +496,25 @@ function syncToDrive(session){
   })
   .then(function(r){return r.json();})
   .then(function(d){
-    if(d.success){toast('Synced to Drive: '+d.filename,'g');}
-    else{toast('Drive sync failed: '+(d.error||'unknown'),'r');}
+    if(d.success){
+      setStatus('ok','Saved to Drive: '+d.filename);
+      toast('Saved to Drive','g');
+    }else{
+      setStatus('er','Drive error: '+(d.error||'unknown'));
+      toast('Drive save failed','r');
+    }
   })
-  .catch(function(err){toast('Drive sync failed — file saved locally','r');});
+  .catch(function(err){
+    setStatus('er','Network error — check WiFi');
+    toast('Drive save failed','r');
+  });
+}
+
+function setStatus(state,msg){
+  var dot=document.getElementById('sdot');
+  var label=document.getElementById('slabel');
+  if(dot)dot.className='sdot'+(state==='sy'?' sy':state==='ok'?' ok':state==='er'?' er':'');
+  if(label)label.textContent=msg;
 }
 
 function resetScan(){
